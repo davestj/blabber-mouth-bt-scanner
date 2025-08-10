@@ -7,7 +7,8 @@
     "start": "electron .",
     "clean": "node scripts/clean.js",
     "scan": "node scripts/scan.js",
-    "test": "echo \"No tests defined\""
+    "test": "echo \"No tests defined\"",
+    "update-data": "node scripts/update-datasets.js --once"
   },
   "keywords": [],
   "author": "",
@@ -18,15 +19,14 @@
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
     "@mui/material": "^5.15.19",
-    "axios": "^1.7.2",
     "cli-table": "^0.3.11",
     "noble": "^1.9.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "winston": "^3.13.0",
-    "zlib": "^1.0.5",
     "bcrypt": "^5.1.1",
-    "js-yaml": "^4.1.0"
+    "js-yaml": "^4.1.0",
+    "node-cron": "^3.0.3"
   },
   "devDependencies": {
     "electron": "^31.7.7"

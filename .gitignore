@@ -10,6 +10,9 @@ log/
 !known.rogue.devices.db
 !potential.rogue_devices.db
 
+# Downloaded vulnerability feeds
+data/*.json.gz
+
 # Configuration
 config.yaml
 
