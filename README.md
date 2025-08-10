@@ -30,5 +30,28 @@ The application will open a window and begin scanning for Bluetooth devices.  Pr
 
 Paths for logs, databases and scan output can be adjusted in `config.yaml` under the `paths` section.
 
+## AI Summaries (Optional)
+
+Scan results can optionally be sent to an AI model for summarization or
+anomaly analysis. The feature is opt-in and remains inactive until a
+supported provider is configured in `config.yaml`.
+
+```yaml
+aiProvider:
+  name: ollama        # or 'openai'
+  model: llama3       # model name for the provider
+  endpoint: http://localhost:11434/api/generate  # Ollama example
+  apiKey: YOUR_API_KEY # required for OpenAI
+```
+
+With a provider configured you can send data using the helper module:
+
+```javascript
+const { sendScanSummary, sendAnomaly } = require('./ai-helper');
+await sendScanSummary('5 devices detected with no vulnerabilities.');
+```
+
+To opt out, remove the `aiProvider` block or leave `name` empty.
+
 ## Contributing
 Contributions are welcome!  Please follow the guidelines in `CHANGELOG.md` and use pull requests for all changes.
