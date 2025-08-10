@@ -1,5 +1,27 @@
-node_modules
-log
-package-lock.json
+# Dependencies
+node_modules/
+
+# Logs
+log/
+
+# Databases
+*.db
+
+# Configuration
 config.yaml
-data/credentials.json
+
+# Credential stores
+data/credentials.*
+*.pem
+*.p12
+*.pfx
+*.key
+*.crt
+*.cer
+
+# OS artifacts
+.DS_Store
+Thumbs.db
+
+# Package files
+package-lock.json
