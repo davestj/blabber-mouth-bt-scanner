@@ -1,0 +1,8 @@
+scanner:
+  services: []
+  allowDuplicates: true
+aiProvider:
+  name: openai
+  apiKey: YOUR_API_KEY
+userAuth:
+  credentialsPath: ./data/credentials.json

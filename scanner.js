@@ -1,12 +1,17 @@
 const noble = require('@abandonware/noble');
+const { get } = require('./config');
 
 console.log('Initializing Bluetooth scanner...');
+
+const scannerConfig = get().scanner || {};
 
 noble.on('stateChange', state => {
     console.log(`Bluetooth state changed to: ${state}`);
     if (state === 'poweredOn') {
         console.log('Starting Bluetooth scanning...');
-        noble.startScanning([], true); // Enable duplicates
+        const services = scannerConfig.services || [];
+        const allowDuplicates = scannerConfig.allowDuplicates !== undefined ? scannerConfig.allowDuplicates : true;
+        noble.startScanning(services, allowDuplicates);
     } else {
         console.log('Stopping Bluetooth scanning...');
         noble.stopScanning();
