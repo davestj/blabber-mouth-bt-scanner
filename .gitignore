@@ -6,6 +6,9 @@ log/
 
 # Databases
 *.db
+!known.safe.devices.db
+!known.rogue.devices.db
+!potential.rogue_devices.db
 
 # Configuration
 config.yaml
