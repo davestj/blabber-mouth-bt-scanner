@@ -20,5 +20,13 @@ npm start
 
 The application will open a window and begin scanning for Bluetooth devices.  Press `Ctrl+C` in the terminal to stop scanning when running scripts directly.
 
+## Scripts
+
+- `npm run scan` – perform a headless Bluetooth scan and write the results to the JSON file defined in `config.yaml`.
+- `npm run clean` – remove logs, temporary databases and build artifacts using paths from `config.yaml`.
+- `npm test` – placeholder for future test coverage.
+
+Paths for logs, databases and scan output can be adjusted in `config.yaml` under the `paths` section.
+
 ## Contributing
 Contributions are welcome!  Please follow the guidelines in `CHANGELOG.md` and use pull requests for all changes.

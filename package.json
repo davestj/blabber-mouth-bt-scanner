@@ -4,7 +4,10 @@
   "main": "main.js",
   "scripts": {
     "build": "npm install",
-    "start": "electron ."
+    "start": "electron .",
+    "clean": "node scripts/clean.js",
+    "scan": "node scripts/scan.js",
+    "test": "echo \"No tests defined\""
   },
   "keywords": [],
   "author": "",
