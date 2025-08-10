@@ -5,6 +5,7 @@ Blabber Mouth BT Scanner is an Electron-based desktop application that scans for
 ## Features
 - Discover nearby Bluetooth devices and display name, address, RSSI and advertised UUIDs.
 - Parse a local [NVD](https://nvd.nist.gov/) feed to flag known vulnerable device identifiers.
+- Enrich device data with vendor information from the public IEEE OUI list (via [Wireshark's manuf](https://www.wireshark.org/download/automated/data/manuf)).
 - Structured logging to both the console and an `output.log` file.
 - Cross‑platform Electron UI with a React-based renderer.
 
@@ -25,6 +26,7 @@ The application will open a window and begin scanning for Bluetooth devices.  Pr
 - `npm run scan` – perform a headless Bluetooth scan and write the results to the JSON file defined in `config.yaml`.
 - `npm run clean` – remove logs, temporary databases and build artifacts using paths from `config.yaml`.
 - `npm test` – placeholder for future test coverage.
+- `npm run update-data` – fetch the [Wireshark manuf](https://www.wireshark.org/download/automated/data/manuf) (IEEE OUI) list and the NVD [CVE](https://nvd.nist.gov/) feed, merging fresh entries into flat files under `data/`.
 
 Paths for logs, databases and scan output can be adjusted in `config.yaml` under the `paths` section.
 
