@@ -1,5 +1,9 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
+const fs = require('fs');
+const logger = require('./logger');
+const { runRootkitCheck } = require('./rootkit-checker');
+const { createBaseline, checkIntegrity, baselineFile } = require('./file-integrity');
 
 function createWindow() {
     const win = new BrowserWindow({
@@ -18,7 +22,18 @@ function createWindow() {
     win.webContents.openDevTools();
 }
 
-app.whenReady().then(createWindow);
+app.whenReady().then(() => {
+    if (!fs.existsSync(baselineFile)) {
+        createBaseline(process.cwd());
+    }
+    createWindow();
+});
+
+ipcMain.handle('run-security-checks', async () => {
+    const rootkit = await runRootkitCheck();
+    const integrity = checkIntegrity(process.cwd());
+    return { rootkit, integrity };
+});
 
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {

@@ -123,3 +123,17 @@ ${vulnerabilityInfo});
         alert(Error scanning vulnerabilities: ${error.message}`);
     }
 };
+
+const securityButton = document.getElementById('run-security-checks');
+const rootkitResult = document.getElementById('rootkit-result');
+const integrityResult = document.getElementById('integrity-result');
+
+securityButton.onclick = async () => {
+    const result = await electron.ipcRenderer.invoke('run-security-checks');
+    rootkitResult.innerText = result.rootkit.status === 'ok'
+        ? 'Rootkit check passed'
+        : result.rootkit.output;
+    integrityResult.innerText = (result.integrity.changed && result.integrity.changed.length === 0)
+        ? 'No file changes detected'
+        : `Changed files: ${result.integrity.changed.join(', ')}`;
+};
