@@ -6,3 +6,10 @@ aiProvider:
   apiKey: YOUR_API_KEY
 userAuth:
   credentialsPath: ./data/credentials.json
+paths:
+  logDir: ./log
+  safeDb: ./known.safe.devices.db
+  potentialDb: ./potential.rogue_devices.db
+  rogueDb: ./known.rogue.devices.db
+  buildDir: ./dist
+  scanOutput: ./data/scan-results.json
