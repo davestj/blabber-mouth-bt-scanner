@@ -2,8 +2,10 @@ scanner:
   services: []
   allowDuplicates: true
 aiProvider:
-  name: openai
-  apiKey: YOUR_API_KEY
+  name: openai # or 'ollama'
+  apiKey: YOUR_API_KEY # required for OpenAI
+  endpoint: http://localhost:11434/api/generate # default Ollama endpoint
+  model: gpt-4o-mini
 userAuth:
   credentialsPath: ./data/credentials.json
 paths:
