@@ -1,139 +1,172 @@
-const { electron } = window;
-const noble = electron.noble;
+const React = require('react');
+const ReactDOM = require('react-dom/client');
+const { useState, useEffect } = React;
+const {
+  ThemeProvider,
+  createTheme,
+  CssBaseline,
+  AppBar,
+  Toolbar,
+  Typography,
+  IconButton,
+  Container,
+  List,
+  ListItem,
+  ListItemText,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  Box,
+  SvgIcon
+} = require('@mui/material');
+const { FontAwesomeIcon } = require('@fortawesome/react-fontawesome');
+const { faSun, faMoon } = require('@fortawesome/free-solid-svg-icons');
+
+const noble = (window.electron && window.electron.noble) || require('@abandonware/noble');
+const { ipcRenderer } = (window.electron) || require('electron');
 const { checkDeviceVulnerabilities } = require('./vulnerability-checker');
-const logger = require('./logger');
 
-const deviceListElement = document.getElementById('device-list');
-const modal = document.getElementById('device-info-modal');
-const modalContent = document.getElementById('device-info');
-const closeModal = document.getElementById('close-modal');
-const scanVulnerabilitiesButton = document.getElementById('scan-vulnerabilities');
-
-let selectedDevice = null;
-
-logger.debug('Initializing Bluetooth scanner...');
-console.log('Initializing Bluetooth scanner...');
-
-if (!noble) {
-    console.error('Noble is not available');
+function BluetoothIcon(props) {
+  return (
+    React.createElement(SvgIcon, props,
+      React.createElement('path', { d: 'M12 2v7.09L8.53 5.62 7.1 7.05 12 12l-4.9 4.95 1.43 1.43L12 14.91V22l6-6-4.27-4.27L18 6l-6-4z' })
+    )
+  );
 }
 
-noble.on('stateChange', state => {
-    logger.debug(Bluetooth state changed to: ${state});
-    console.log(Bluetooth state changed to: ${state});
-    if (state === 'poweredOn') {
-        logger.debug('Starting Bluetooth scanning...');
-        console.log('Starting Bluetooth scanning...');
-        noble.startScanning([], true);  // Enable duplicates
-    } else {
-        logger.debug('Stopping Bluetooth scanning...');
-        console.log('Stopping Bluetooth scanning...');
+function App() {
+  const [devices, setDevices] = useState([]);
+  const [selectedDevice, setSelectedDevice] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [scanningStatus, setScanningStatus] = useState('');
+  const [themeMode, setThemeMode] = useState('light');
+  const [rootkitResult, setRootkitResult] = useState('');
+  const [integrityResult, setIntegrityResult] = useState('');
+
+  useEffect(() => {
+    if (!noble) {
+      console.error('Noble is not available');
+      return;
+    }
+    noble.on('stateChange', state => {
+      if (state === 'poweredOn') {
+        noble.startScanning([], true);
+      } else {
         noble.stopScanning();
-    }
-});
+      }
+    });
+    noble.on('scanStart', () => {
+      setScanningStatus('Scanning for devices...');
+    });
+    noble.on('scanStop', () => {
+      setScanningStatus('Scan stopped.');
+    });
+    noble.on('discover', peripheral => {
+      setDevices(prev => {
+        if (prev.find(d => d.address === peripheral.address)) return prev;
+        return [...prev, peripheral];
+      });
+    });
+  }, []);
 
-noble.on('scanStart', () => {
-    logger.debug('Scan started');
-    console.log('Scan started');
-    const scanningStatus = document.createElement('p');
-    scanningStatus.id = 'scanning-status';
-    scanningStatus.innerText = 'Scanning for devices...';
-    document.body.appendChild(scanningStatus);
-});
+  const handleDeviceClick = device => {
+    setSelectedDevice(device);
+    setModalOpen(true);
+  };
 
-noble.on('scanStop', () => {
-    logger.debug('Scan stopped');
-    console.log('Scan stopped');
-    const scanningStatus = document.getElementById('scanning-status');
-    if (scanningStatus) {
-        scanningStatus.innerText = 'Scan stopped.';
-    }
-});
-
-noble.on('discover', peripheral => {
-    logger.debug(Discovered device with address: ${peripheral.address});
-    console.log(Discovered device with address: ${peripheral.address});
-    const deviceItem = document.createElement('li');
-    const deviceName = peripheral.advertisement.localName || 'Unknown';
-    deviceItem.innerText = Device: ${deviceName}
-    Address: ${peripheral.address};
-
-    deviceItem.ondblclick = () => {
-        logger.debug(`Device double-clicked: ${deviceName} (${peripheral.address})`);
-        console.log(`Device double-clicked: ${deviceName} (${peripheral.address})`);
-        selectedDevice = peripheral;
-        modalContent.innerHTML = `
-        <p>Name: ${deviceName}</p>
-        <p>Address: ${peripheral.address}</p>
-        <p>RSSI: ${peripheral.rssi}</p>
-        <p>UUIDs: ${peripheral.advertisement.serviceUuids.join(', ')}</p>
-    `;
-        modal.style.display = 'block';
-    };
-
-    deviceListElement.appendChild(deviceItem);
-});
-
-closeModal.onclick = () => {
-    logger.debug('Closing modal...');
-    console.log('Closing modal...');
-    modal.style.display = 'none';
-};
-
-window.onclick = event => {
-    if (event.target === modal) {
-        logger.debug('Window click detected, closing modal...');
-        console.log('Window click detected, closing modal...');
-        modal.style.display = 'none';
-    }
-};
-
-scanVulnerabilitiesButton.onclick = async () => {
-    if (!selectedDevice) {
-        logger.debug('No device selected');
-        console.log('No device selected');
-        alert('No device selected');
-        return;
-    }
-
-    logger.debug(`Scanning vulnerabilities for device: ${selectedDevice.advertisement.localName} (${selectedDevice.address})`);
-    console.log(`Scanning vulnerabilities for device: ${selectedDevice.advertisement.localName} (${selectedDevice.address})`);
-
+  const handleScanVulnerabilities = async () => {
+    if (!selectedDevice) return;
     try {
-        const vulnerabilities = await checkDeviceVulnerabilities(selectedDevice.address);
-        let vulnerabilityInfo = '';
-
-        if (vulnerabilities.length > 0) {
-            logger.debug(`Found ${vulnerabilities.length} vulnerabilities for device: ${selectedDevice.address}`);
-            console.log(`Found ${vulnerabilities.length} vulnerabilities for device: ${selectedDevice.address}`);
-            vulnerabilities.forEach(vul => {
-                vulnerabilityInfo += `<p><strong>${vul.cve.CVE_data_meta.ID}</strong>: ${vul.cve.description.description_data[0].value}</p>`;
-            });
-        } else {
-            logger.debug(`No vulnerabilities found for device: ${selectedDevice.address}`);
-            console.log(`No vulnerabilities found for device: ${selectedDevice.address}`);
-            vulnerabilityInfo = '<p>No known vulnerabilities found.</p>';
-        }
-
-        alert(`Vulnerability Scan Result:
-${vulnerabilityInfo});
-    } catch (error) {
-        logger.error(Error scanning vulnerabilities: ${error.message});
-        console.error(Error scanning vulnerabilities: ${error.message});
-        alert(Error scanning vulnerabilities: ${error.message}`);
+      const vulnerabilities = await checkDeviceVulnerabilities(selectedDevice.address);
+      if (vulnerabilities.length > 0) {
+        alert(`Found ${vulnerabilities.length} vulnerabilities`);
+      } else {
+        alert('No known vulnerabilities found.');
+      }
+    } catch (err) {
+      alert(`Error scanning vulnerabilities: ${err.message}`);
     }
-};
+  };
 
-const securityButton = document.getElementById('run-security-checks');
-const rootkitResult = document.getElementById('rootkit-result');
-const integrityResult = document.getElementById('integrity-result');
+  const handleRunSecurityChecks = async () => {
+    const result = await ipcRenderer.invoke('run-security-checks');
+    setRootkitResult(result.rootkit.status === 'ok'
+      ? 'Rootkit check passed'
+      : result.rootkit.output);
+    setIntegrityResult((result.integrity.changed && result.integrity.changed.length === 0)
+      ? 'No file changes detected'
+      : `Changed files: ${result.integrity.changed.join(', ')}`);
+  };
 
-securityButton.onclick = async () => {
-    const result = await electron.ipcRenderer.invoke('run-security-checks');
-    rootkitResult.innerText = result.rootkit.status === 'ok'
-        ? 'Rootkit check passed'
-        : result.rootkit.output;
-    integrityResult.innerText = (result.integrity.changed && result.integrity.changed.length === 0)
-        ? 'No file changes detected'
-        : `Changed files: ${result.integrity.changed.join(', ')}`;
-};
+  const theme = createTheme({ palette: { mode: themeMode } });
+
+  return (
+    React.createElement(ThemeProvider, { theme },
+      React.createElement(CssBaseline, null),
+      React.createElement(AppBar, { position: 'static' },
+        React.createElement(Toolbar, null,
+          React.createElement(BluetoothIcon, { sx: { mr: 2 } }),
+          React.createElement(Typography, { variant: 'h6', sx: { flexGrow: 1 } }, 'Blabber-Mouth BT Scanner'),
+          React.createElement(IconButton, {
+            color: 'inherit',
+            'aria-label': 'toggle dark mode',
+            onClick: () => setThemeMode(prev => prev === 'light' ? 'dark' : 'light')
+          },
+            React.createElement(FontAwesomeIcon, { icon: themeMode === 'light' ? faMoon : faSun })
+          )
+        )
+      ),
+      React.createElement(Container, { sx: { py: 2 } },
+        React.createElement(Typography, { variant: 'body1', 'aria-live': 'polite' }, scanningStatus),
+        React.createElement(List, null,
+          devices.map(device =>
+            React.createElement(ListItem, {
+              key: device.address,
+              button: true,
+              onClick: () => handleDeviceClick(device)
+            },
+              React.createElement(ListItemText, {
+                primary: device.advertisement.localName || 'Unknown',
+                secondary: device.address
+              })
+            )
+          )
+        ),
+        React.createElement(Box, { sx: { mt: 2 } },
+          React.createElement(Button, {
+            variant: 'contained',
+            onClick: handleRunSecurityChecks,
+            'aria-label': 'Run security checks'
+          }, 'Run Security Checks'),
+          React.createElement(Typography, { variant: 'body2' }, rootkitResult),
+          React.createElement(Typography, { variant: 'body2' }, integrityResult)
+        )
+      ),
+      React.createElement(Dialog, {
+        open: modalOpen,
+        onClose: () => setModalOpen(false),
+        'aria-labelledby': 'device-info-title'
+      },
+        React.createElement(DialogTitle, { id: 'device-info-title' }, 'Device Information'),
+        React.createElement(DialogContent, { dividers: true },
+          selectedDevice && React.createElement(React.Fragment, null,
+            React.createElement(Typography, null, `Name: ${selectedDevice.advertisement.localName || 'Unknown'}`),
+            React.createElement(Typography, null, `Address: ${selectedDevice.address}`),
+            React.createElement(Typography, null, `RSSI: ${selectedDevice.rssi}`),
+            React.createElement(Typography, null, `UUIDs: ${selectedDevice.advertisement.serviceUuids.join(', ')}`)
+          )
+        ),
+        React.createElement(DialogActions, null,
+          React.createElement(Button, { onClick: handleScanVulnerabilities }, 'Scan for Vulnerabilities'),
+          React.createElement(Button, { onClick: () => setModalOpen(false) }, 'Close')
+        )
+      )
+    )
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(React.createElement(App));
+
