@@ -449,27 +449,38 @@
             loadingOverlay.classList.add('active');
             errorMsg.classList.remove('active');
             
-            try {
-                // Check if API is available
-                if (!window.bthlAPI) {
-                    throw new Error('API not available');
+            // Check if running in Electron with IPC
+            if (window.bthlAPI && window.bthlAPI.auth) {
+                try {
+                    const result = await window.bthlAPI.auth.authenticate(username, password);
+                    
+                    if (result && result.success) {
+                        console.log('Authentication successful');
+                        await window.bthlAPI.auth.navigateToDashboard();
+                    } else {
+                        errorMsg.classList.add('active');
+                        loadingOverlay.classList.remove('active');
+                    }
+                } catch (error) {
+                    console.error('Authentication error:', error);
+                    errorMsg.classList.add('active');
+                    loadingOverlay.classList.remove('active');
                 }
+            } else {
+                // Fallback for testing without Electron
+                const { verifyCredentials } = require('./credentials');
+                const { login } = require('./session');
                 
-                // We authenticate via IPC to main process
-                const result = await window.bthlAPI.auth.authenticate(username, password);
-                
-                if (result && result.success) {
-                    console.log('Authentication successful');
-                    // We navigate to dashboard via IPC
-                    await window.bthlAPI.auth.navigateToDashboard();
+                if (verifyCredentials(username, password)) {
+                    const token = login(username, password);
+                    if (token) {
+                        console.log('Authentication successful');
+                        window.location.href = 'dashboard.html';
+                    }
                 } else {
                     errorMsg.classList.add('active');
                     loadingOverlay.classList.remove('active');
                 }
-            } catch (error) {
-                console.error('Authentication error:', error);
-                errorMsg.classList.add('active');
-                loadingOverlay.classList.remove('active');
             }
         });
 

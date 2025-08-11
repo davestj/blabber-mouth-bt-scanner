@@ -1,152 +1,207 @@
+# 🛡️ BTHL Blabber Mouth BT Scanner
+
 ![Build](https://img.shields.io/github/actions/workflow/status/davestj/blabber-mouth-bt-scanner/dev.yml?branch=main&label=build)
 ![Release](https://img.shields.io/github/v/release/davestj/blabber-mouth-bt-scanner)
 ![License](https://img.shields.io/github/license/davestj/blabber-mouth-bt-scanner)
 ![Language](https://img.shields.io/github/languages/top/davestj/blabber-mouth-bt-scanner)
-![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20Windows-blue)
-![Version](https://img.shields.io/badge/version-1.0.0-blue)
+![Platform](https://img.shields.io/badge/platform-macOS%20ARM64%20%7C%20Linux%20%7C%20Windows%20%7C%20Raspberry%20Pi-blue)
+![Version](https://img.shields.io/badge/version-2.0.0-blue)
 
-**Author:** David Andrew St John<br>
-**Version:** 1.0.0<br>
-**Last Updated:** August 11, 2025<br>
+![GitHub stars](https://img.shields.io/github/stars/davestj/blabber-mouth-bt-scanner?style=social)
+![GitHub forks](https://img.shields.io/github/forks/davestj/blabber-mouth-bt-scanner?style=social)
+![GitHub watchers](https://img.shields.io/github/watchers/davestj/blabber-mouth-bt-scanner?style=social)
+![GitHub last commit](https://img.shields.io/github/last-commit/davestj/blabber-mouth-bt-scanner)
+![GitHub issues](https://img.shields.io/github/issues/davestj/blabber-mouth-bt-scanner)
+![GitHub pull requests](https://img.shields.io/github/issues-pr/davestj/blabber-mouth-bt-scanner)
+
+## 🎯 Military-Grade Bluetooth Threat Detection System
+
+**Beyond The Horizon Labs (BTHL)** presents a tactical-grade Bluetooth security scanner designed for threat detection, device monitoring, and anomaly analysis. Built for deployment in high-security environments including Skinwalker Ranch-type investigations.
+
+**Author:** David Andrew St John  
+**Version:** 2.0.0  
+**Last Updated:** August 11, 2025  
 **Repository:** [blabber-mouth-bt-scanner](https://github.com/davestj/blabber-mouth-bt-scanner)
 
-# Blabber Mouth BT Scanner
+## 🚀 Key Features
 
-Blabber Mouth BT Scanner is an Electron-based desktop application that scans for nearby Bluetooth devices and highlights potential security issues.  It combines the [`@abandonware/noble`](https://github.com/abandonware/noble) Bluetooth library with a simple vulnerability feed to help developers and researchers inspect their environment.
+### 🔍 Advanced Bluetooth Scanning
+- **Real-time device discovery** with live RSSI monitoring
+- **Distance triangulation** using RF signal strength algorithms
+- **GPS coordinate calculation** from Bluetooth signal positioning
+- **Dual measurement system** (Metric & Imperial: meters/feet/yards)
+- **Device type identification** with threat-level icons
+- **RSSI variance tracking** for movement detection
 
-## Features
-- Discover nearby Bluetooth devices and display name, address, RSSI and advertised UUIDs.
-- Parse a local [NVD](https://nvd.nist.gov/) feed to flag known vulnerable device identifiers.
-- Enrich device data with vendor information from the public IEEE OUI list (via [Wireshark's manuf](https://www.wireshark.org/download/automated/data/manuf)).
-- Structured logging to both the console and an `output.log` file.
-- Cross‑platform Electron UI with a React-based renderer.
+### 🎯 Threat Detection & Analysis
+- **AI-powered threat assessment** (HIGH/MEDIUM/LOW)
+- **Suspicious device pattern recognition** (spy cams, hidden devices)
+- **Signal anomaly detection** for rogue devices
+- **Automated flagging system** with operator tracking
+- **Device profiling & monitoring** for continuous surveillance
 
-## Getting Started
-See [INSTALL.md](INSTALL.md) for platform prerequisites, dependency installation and launch instructions.  The project uses semantic versioning; release history and guidelines live in [CHANGELOG.md](CHANGELOG.md).
+### 🛡️ Security Features
+- **Rootkit scanning** integration
+- **File integrity monitoring**
+- **Process threat detection**
+- **Network vulnerability scanning**
+- **SQLite database** for persistent threat tracking
+- **Encrypted credential storage** with bcrypt
 
-Before launching the application, ensure the credential store contains at least one user. You can seed it in one of several ways:
+### 🎨 Military-Grade UI
+- **Tactical radar visualization** with real-time sweep animation
+- **Device signal waveform display**
+- **Threat-level color coding** (RED/ORANGE/GREEN)
+- **Live device tracking dashboard**
+- **Modal device intelligence reports**
+- **Monitoring & Security scan tabs**
 
-1. Run `node scripts/add-user.js` to interactively create a user.
-2. Set `userAuth.defaultUser` and `userAuth.defaultPassword` in `config.yaml`.
-3. Point `userAuth.credentialSeedFile` at a file containing `username:password`.
+### 📍 Location Services
+- **GPS integration** for device geolocation
+- **Signal triangulation** for position mapping
+- **X,Y coordinate tracking** from RSSI history
+- **Base location configuration** (defaults to Renton, WA)
 
-On first launch, the app hashes and stores the credentials if the store is empty. `data/credentials.json` and any seed files (e.g., `data/credential.seed`) are ignored by Git; keep them out of version control.
+## 💻 System Requirements
 
-## Usage
-Once dependencies are installed you can start the app with:
+- **Node.js** 18.0.0+ 
+- **npm** 8.0.0+
+- **Electron** 31.7.7
+- **Bluetooth adapter** compatible with Noble
+
+### Supported Platforms
+- ✅ macOS (ARM64/Intel)
+- ✅ Linux/Debian 12+
+- ✅ Ubuntu 22.04/24.04
+- ✅ Windows 10/11
+- ✅ Raspberry Pi 4+ (ARM)
+
+## 🔧 Installation
 
 ```bash
-npm start
+# Clone repository
+git clone https://github.com/davestj/blabber-mouth-bt-scanner
+cd blabber-mouth-bt-scanner
+
+# Install dependencies
+npm install
+
+# Initialize database
+npm run db:init
+
+# Create user credentials
+npm run add-user
+
+# Start application
+npm run dev
 ```
 
-The application will open a window and begin scanning for Bluetooth devices.  Press `Ctrl+C` in the terminal to stop scanning when running scripts directly.
+## 🎮 Usage
 
+### Authentication
+Default credentials configured in `config.yaml`:
+```yaml
+userAuth:
+  defaultUser: "dstjohn"
+  defaultPassword: "#!5243wrvNN"
+```
 
-## Configuration
+### Scanner Operations
+1. **START SCAN** - Initiates Bluetooth discovery
+2. **Device List** - Click any device for detailed intelligence report
+3. **Flag Device** - Mark suspicious devices for monitoring
+4. **Export Data** - Generate JSON reports with timestamp
 
-All application settings live in `config.yaml`. The table below lists each field,
-its default value and an example override.
+### Security Scanning
+- Click **SECURITY** tab (left side)
+- Run full scan or targeted rootkit detection
+- View file integrity and process analysis
 
-| Field | Default | Example |
-| --- | --- | --- |
-| `scanner.services` | `[]` | `["180d", "180f"]` |
-| `scanner.allowDuplicates` | `true` | `false` |
-| `aiProvider.name` | `openai` | `ollama` |
-| `aiProvider.apiKey` | `YOUR_API_KEY` | `sk-123abc` |
-| `aiProvider.endpoint` | `http://localhost:11434/api/generate` | `https://api.openai.com/v1/completions` |
-| `aiProvider.model` | `gpt-4o-mini` | `llama3` |
-| `userAuth.credentialsPath` | `./data/credentials.json` | `./data/creds.json` |
-| `userAuth.defaultUser` | `""` | `admin` |
-| `userAuth.defaultPassword` | `""` | `secret` |
-| `userAuth.credentialSeedFile` | `""` | `./data/credential.seed` |
-| `paths.logDir` | `./log` | `./logs` |
-| `paths.safeDb` | `./known.safe.devices.db` | `./data/safe.db` |
-| `paths.potentialDb` | `./potential.rogue_devices.db` | `./data/potential.db` |
-| `paths.rogueDb` | `./known.rogue.devices.db` | `./data/rogue.db` |
-| `paths.buildDir` | `./dist` | `./build` |
-| `paths.scanOutput` | `./data/scan-results.json` | `./out/scan.json` |
+### Monitoring
+- Click **MONITORING** tab (right side)  
+- Track flagged devices continuously
+- Real-time RSSI and location updates
 
-## Helper Scripts
+## 📊 Configuration
 
-The project ships several utility scripts under `scripts/` (plus one in the
-root). Run them with `node`:
-
-- `node scripts/add-user.js` – interactively store a username and password in
-  the credential store.
-- `node scripts/scan.js` – perform a headless Bluetooth scan and write results
-  to the file from `paths.scanOutput`.
-- `node scripts/update-datasets.js --once` – fetch the latest IEEE OUI and NVD
-  CVE data, merging new entries into the local `data/` databases.
-- `node scripts/clean.js` – remove logs, temporary databases and the build
-  directory using paths from `config.yaml`.
-- `node export-logs.js aggregated.json` – gather JSON logs from `data/` and
-  write them to `aggregated.json` (omit the filename to print to stdout).
-
-## Optional Features
-
-### AI Summaries
-
-Scan results can be sent to an AI model for summarization or anomaly analysis.
-The feature remains inactive until a supported provider is configured in
-`config.yaml`.
+Key settings in `config.yaml`:
 
 ```yaml
+scanner:
+  services: []              # BT service UUIDs to filter
+  allowDuplicates: true     # Track all advertisements
+
+paths:
+  logDir: ./log
+  safeDb: ./known.safe.devices.db
+  rogueDb: ./known.rogue.devices.db
+
 aiProvider:
-  name: ollama        # or 'openai'
-  model: llama3       # model name for the provider
-  endpoint: http://localhost:11434/api/generate  # Ollama example
-  apiKey: YOUR_API_KEY # required for OpenAI
+  name: openai              # or 'ollama'
+  model: gpt-4o-mini
+  apiKey: YOUR_API_KEY
 ```
 
-With a provider configured you can send data using the helper module:
-
-```javascript
-const { sendScanSummary, sendAnomaly } = require('./ai-helper');
-await sendScanSummary('5 devices detected with no vulnerabilities.');
-```
-
-To opt out, remove the `aiProvider` block or leave `name` empty.
-
-### Rootkit Detection
-
-The `rootkit-checker.js` module wraps the `chkrootkit` utility to scan the host
-for known rootkits:
+## 🛠️ Development Scripts
 
 ```bash
-node -e "require('./rootkit-checker').runRootkitCheck().then(console.log)"
+npm run dev              # Start in development mode
+npm run build           # Production build
+npm run clean:all       # Full cleanup
+npm run db:stats        # Database statistics
+npm run scan:headless   # CLI scanning mode
+npm run rootkit:check   # Security scan
+npm run integrity:check # File integrity verification
+npm run export-logs     # Aggregate JSON logs
 ```
 
-### File Integrity Checks
+## 📚 Architecture
 
-Generate a hash baseline and check for unexpected changes using
-`file-integrity.js`:
-
-```bash
-# create baseline
-node -e "require('./file-integrity').createBaseline(__dirname)"
-# later verify files
-node -e "require('./file-integrity').checkIntegrity(__dirname)"
+```
+├── main.js              # Main Electron process + Bluetooth
+├── preload.js          # IPC bridge with OS detection
+├── database.js         # SQLite device persistence
+├── auth.html           # Military-grade login screen
+├── dashboard.html      # Tactical operations interface
+├── renderer.js         # React-based UI components
+└── bluetooth-scanner.js # Noble BT integration
 ```
 
-### Log Export
+## 🔒 Security Considerations
 
-Combine individual JSON logs under `data/` into a single file or print them to
-stdout:
+- Credential store (`data/credentials.json`) excluded from Git
+- All passwords hashed with bcrypt (10 rounds)
+- Session tokens expire after 15 minutes
+- File integrity baseline on first launch
+- Rootkit detection via chkrootkit wrapper
 
-```bash
-node export-logs.js all-logs.json
-```
+## 🚁 Field Deployment
 
-## Release Workflow
+Optimized for high-security locations:
+- Government facilities
+- Research installations  
+- Paranormal investigation sites (Skinwalker Ranch)
+- Corporate security audits
+- Counter-surveillance operations
 
-This project uses manual versioning that follows [Semantic Versioning](https://semver.org/).
+## 📈 Project Stats
 
-1. For every change merged into the `master` or `future` branches, add an entry to [CHANGELOG.md](CHANGELOG.md) under **Unreleased**.
-2. When cutting a release:
-   - Update the version number in `package.json` (and any other manifests such as `Info.plist`) using `npm version <major|minor|patch>`.
-   - Move the accumulated notes from **Unreleased** to a new versioned section in the changelog and include the release date.
-   - Commit the changes with a message like `chore(release): vX.Y.Z` and create a matching Git tag.
-3. Push the commit and tag to publish the release.
+- **2000+ lines** of military-grade code
+- **15+ security features** implemented
+- **Real-time threat detection** algorithms
+- **Cross-platform** compatibility
+- **SQLite persistence** for device tracking
 
-## Contributing
-Contributions are welcome!  Please follow the guidelines in `CHANGELOG.md` and use pull requests for all changes.
+## 🤝 Contributing
+
+See [CHANGELOG.md](CHANGELOG.md) for development history. PRs welcome following semantic versioning.
+
+## 📜 License
+
+ISC License - See [LICENSE](LICENSE) file
+
+---
+
+**BEYOND THE HORIZON LABS** - *Tactical Security Solutions*
+
+![BTHL Logo](https://img.shields.io/badge/BTHL-CLASSIFIED-red)
