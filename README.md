@@ -12,6 +12,14 @@ Blabber Mouth BT Scanner is an Electron-based desktop application that scans for
 ## Getting Started
 See [INSTALL.md](INSTALL.md) for platform prerequisites, dependency installation and launch instructions.  The project uses semantic versioning; release history and guidelines live in [CHANGELOG.md](CHANGELOG.md).
 
+Before launching the application for the first time, initialize the credential store:
+
+```bash
+node scripts/add-user.js
+```
+
+This creates `data/credentials.json` with a hashed username/password pair.  The file is ignored by Git; keep it out of version control.
+
 ## Usage
 Once dependencies are installed you can start the app with:
 

@@ -12,7 +12,12 @@ These instructions describe how to set up Blabber Mouth BT Scanner on common pla
    ```bash
    npm install
    ```
-4. Launch the application:
+4. Initialize the credential store:
+   ```bash
+   node scripts/add-user.js
+   ```
+   This creates `data/credentials.json` (ignored by Git). Keep this file out of version control.
+5. Launch the application:
    ```bash
    npm start
    ```
@@ -24,18 +29,34 @@ These instructions describe how to set up Blabber Mouth BT Scanner on common pla
    sudo apt-get install -y bluetooth bluez libbluetooth-dev libudev-dev
    ```
 2. Install Node.js from your package manager or from NodeSource.
-3. Install dependencies and run:
+3. Install project dependencies:
    ```bash
    npm install
+   ```
+4. Initialize the credential store:
+   ```bash
+   node scripts/add-user.js
+   ```
+   This creates `data/credentials.json` (ignored by Git). Keep this file out of version control.
+5. Launch the application:
+   ```bash
    npm start
    ```
 
 ## Windows
 1. Install [Node.js](https://nodejs.org/) and ensure `node` and `npm` are in your `PATH`.
 2. Install [Visual Studio Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/) for native module compilation.
-3. From the project directory run:
+3. From the project directory install dependencies:
    ```bash
    npm install
+   ```
+4. Initialize the credential store:
+   ```bash
+   node scripts/add-user.js
+   ```
+   This creates `data/credentials.json` (ignored by Git). Keep this file out of version control.
+5. Launch the application:
+   ```bash
    npm start
    ```
 

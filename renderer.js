@@ -29,6 +29,16 @@ const noble = (window.electron && window.electron.noble) || require('@abandonwar
 const { ipcRenderer } = (window.electron) || require('electron');
 const { checkDeviceVulnerabilities } = require('./vulnerability-checker');
 const session = require('./session');
+const fs = require('fs');
+const path = require('path');
+const { get: getConfig } = require('./config');
+
+function credentialStoreExists() {
+  const config = getConfig() || {};
+  const rel = config.userAuth && config.userAuth.credentialsPath ? config.userAuth.credentialsPath : './data/credentials.json';
+  const filePath = path.isAbsolute(rel) ? rel : path.join(__dirname, rel);
+  return fs.existsSync(filePath);
+}
 
 function BluetoothIcon(props) {
   return (
@@ -224,6 +234,13 @@ function Root() {
     }, 1000);
     return () => clearInterval(interval);
   }, [token]);
+
+  if (!credentialStoreExists()) {
+    return React.createElement(Container, { maxWidth: 'sm', sx: { mt: 8 } },
+      React.createElement(Typography, { variant: 'h6', sx: { mb: 2 } }, 'Credential store not found'),
+      React.createElement(Typography, null, 'Run "node scripts/add-user.js" to create one.')
+    );
+  }
 
   if (!token) {
     return React.createElement(Login, { onSuccess: setToken });
