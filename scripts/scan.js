@@ -43,9 +43,11 @@ async function quickScan() {
 }
 
 quickScan()
-  .then(() => console.log('Scan complete'))
+  .then(() => {
+    console.log('Scan complete');
+  })
   .catch(err => {
-    console.error('Scan failed:', err.message);
+    console.error(`Scan failed: ${err.message}`);
     process.exit(1);
   });
 
