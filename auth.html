@@ -456,7 +456,7 @@
                     
                     if (result && result.success) {
                         console.log('Authentication successful');
-                        await window.bthlAPI.auth.navigateToDashboard();
+                        // Main process will handle navigation
                     } else {
                         errorMsg.classList.add('active');
                         loadingOverlay.classList.remove('active');
@@ -469,14 +469,10 @@
             } else {
                 // Fallback for testing without Electron
                 const { verifyCredentials } = require('./credentials');
-                const { login } = require('./session');
-                
+
                 if (verifyCredentials(username, password)) {
-                    const token = login(username, password);
-                    if (token) {
-                        console.log('Authentication successful');
-                        window.location.href = 'dashboard.html';
-                    }
+                    console.log('Authentication successful');
+                    window.location.href = 'dashboard.html';
                 } else {
                     errorMsg.classList.add('active');
                     loadingOverlay.classList.remove('active');
