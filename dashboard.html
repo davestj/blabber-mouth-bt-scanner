@@ -793,6 +793,15 @@
          * We will integrate this with new Bluetooth library and Electron IPC
          */
 
+        (async () => {
+            const token = sessionStorage.getItem('token');
+            const valid = await window.bthlAPI.auth.isAuthenticated(token);
+            if (!valid) {
+                window.location.href = 'auth.html';
+                return;
+            }
+        })();
+
         // Simulated device data for demonstration
         let devices = [];
         let scanning = false;

@@ -452,16 +452,17 @@
             // Check if running in Electron with IPC
             if (window.bthlAPI && window.bthlAPI.auth) {
                 try {
-                    const result = await window.bthlAPI.auth.authenticate(username, password);
-                    
-                    if (result && result.success) {
-                        console.log('Authentication successful');
-                        await window.bthlAPI.auth.navigateToDashboard();
-                    } else {
-                        errorMsg.classList.add('active');
-                        loadingOverlay.classList.remove('active');
-                    }
-                } catch (error) {
+                      const result = await window.bthlAPI.auth.authenticate(username, password);
+
+                      if (result && result.success) {
+                          console.log('Authentication successful');
+                          sessionStorage.setItem('token', result.token);
+                          await window.bthlAPI.auth.navigateToDashboard(result.token);
+                      } else {
+                          errorMsg.classList.add('active');
+                          loadingOverlay.classList.remove('active');
+                      }
+                  } catch (error) {
                     console.error('Authentication error:', error);
                     errorMsg.classList.add('active');
                     loadingOverlay.classList.remove('active');
@@ -471,17 +472,18 @@
                 const { verifyCredentials } = require('./credentials');
                 const { login } = require('./session');
                 
-                if (verifyCredentials(username, password)) {
-                    const token = login(username, password);
-                    if (token) {
-                        console.log('Authentication successful');
-                        window.location.href = 'dashboard.html';
-                    }
-                } else {
-                    errorMsg.classList.add('active');
-                    loadingOverlay.classList.remove('active');
-                }
-            }
+                  if (verifyCredentials(username, password)) {
+                      const token = login(username, password);
+                      if (token) {
+                          console.log('Authentication successful');
+                          sessionStorage.setItem('token', token);
+                          window.location.href = 'dashboard.html';
+                      }
+                  } else {
+                      errorMsg.classList.add('active');
+                      loadingOverlay.classList.remove('active');
+                  }
+              }
         });
 
         // Add input focus effects

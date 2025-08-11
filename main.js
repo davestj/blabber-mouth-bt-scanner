@@ -48,6 +48,7 @@ try {
 
 let mainWindow = null;
 let currentOperator = 'ALPHA-7';
+let authToken = null; // Stores current session token
 
 // This is our main Bluetooth scanning engine - the heart of the application
 class BluetoothScanner {
@@ -481,8 +482,9 @@ ipcMain.handle('authenticate', async (event, username, password) => {
         
         if (isValid) {
             currentOperator = username.toUpperCase();
+            authToken = require('crypto').randomBytes(32).toString('hex');
             logger.info(`Authentication successful: ${username}`);
-            return { success: true, token: require('crypto').randomBytes(32).toString('hex') };
+            return { success: true, token: authToken };
         } else {
             logger.warn(`Authentication failed: ${username}`);
             return { success: false, error: 'Invalid credentials' };
@@ -493,11 +495,20 @@ ipcMain.handle('authenticate', async (event, username, password) => {
     }
 });
 
+ipcMain.handle('is-authenticated', async (event, token) => {
+    return token === authToken;
+});
+
 // Navigation IPC Handlers
-ipcMain.handle('navigate-to-dashboard', async () => {
-    if (mainWindow) {
+ipcMain.handle('navigate-to-dashboard', async (event, token) => {
+    if (mainWindow && token === authToken) {
         mainWindow.loadFile('dashboard.html');
+        return { success: true };
     }
+    if (mainWindow) {
+        mainWindow.loadFile('auth.html');
+    }
+    return { success: false };
 });
 
 ipcMain.handle('load-page', async (event, page) => {
