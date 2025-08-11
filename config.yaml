@@ -8,6 +8,10 @@ aiProvider:
   model: gpt-4o-mini
 userAuth:
   credentialsPath: ./data/credentials.json
+  # Optional defaults used to seed the credential store when empty.
+  defaultUser: ""
+  defaultPassword: ""
+  credentialSeedFile: ""
 paths:
   logDir: ./log
   safeDb: ./known.safe.devices.db

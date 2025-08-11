@@ -1,3 +1,15 @@
+![Build](https://img.shields.io/github/actions/workflow/status/davestj/blabber-mouth-bt-scanner/dev.yml?branch=main&label=build)
+![Release](https://img.shields.io/github/v/release/davestj/blabber-mouth-bt-scanner)
+![License](https://img.shields.io/github/license/davestj/blabber-mouth-bt-scanner)
+![Language](https://img.shields.io/github/languages/top/davestj/blabber-mouth-bt-scanner)
+![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20Windows-blue)
+![Version](https://img.shields.io/badge/version-1.0.0-blue)
+
+**Author:** David Andrew St John<br>
+**Version:** 1.0.0<br>
+**Last Updated:** August 11, 2025<br>
+**Repository:** [blabber-mouth-bt-scanner](https://github.com/davestj/blabber-mouth-bt-scanner)
+
 # Blabber Mouth BT Scanner
 
 Blabber Mouth BT Scanner is an Electron-based desktop application that scans for nearby Bluetooth devices and highlights potential security issues.  It combines the [`@abandonware/noble`](https://github.com/abandonware/noble) Bluetooth library with a simple vulnerability feed to help developers and researchers inspect their environment.
@@ -12,6 +24,14 @@ Blabber Mouth BT Scanner is an Electron-based desktop application that scans for
 ## Getting Started
 See [INSTALL.md](INSTALL.md) for platform prerequisites, dependency installation and launch instructions.  The project uses semantic versioning; release history and guidelines live in [CHANGELOG.md](CHANGELOG.md).
 
+Before launching the application, ensure the credential store contains at least one user. You can seed it in one of several ways:
+
+1. Run `node scripts/add-user.js` to interactively create a user.
+2. Set `userAuth.defaultUser` and `userAuth.defaultPassword` in `config.yaml`.
+3. Point `userAuth.credentialSeedFile` at a file containing `username:password`.
+
+On first launch, the app hashes and stores the credentials if the store is empty. `data/credentials.json` and any seed files (e.g., `data/credential.seed`) are ignored by Git; keep them out of version control.
+
 ## Usage
 Once dependencies are installed you can start the app with:
 
@@ -21,20 +41,54 @@ npm start
 
 The application will open a window and begin scanning for Bluetooth devices.  Press `Ctrl+C` in the terminal to stop scanning when running scripts directly.
 
-## Scripts
 
-- `npm run scan` – perform a headless Bluetooth scan and write the results to the JSON file defined in `config.yaml`.
-- `npm run clean` – remove logs, temporary databases and build artifacts using paths from `config.yaml`.
-- `npm test` – placeholder for future test coverage.
-- `npm run update-data` – fetch the [Wireshark manuf](https://www.wireshark.org/download/automated/data/manuf) (IEEE OUI) list and the NVD [CVE](https://nvd.nist.gov/) feed, merging fresh entries into flat files under `data/`.
+## Configuration
 
-Paths for logs, databases and scan output can be adjusted in `config.yaml` under the `paths` section.
+All application settings live in `config.yaml`. The table below lists each field,
+its default value and an example override.
 
-## AI Summaries (Optional)
+| Field | Default | Example |
+| --- | --- | --- |
+| `scanner.services` | `[]` | `["180d", "180f"]` |
+| `scanner.allowDuplicates` | `true` | `false` |
+| `aiProvider.name` | `openai` | `ollama` |
+| `aiProvider.apiKey` | `YOUR_API_KEY` | `sk-123abc` |
+| `aiProvider.endpoint` | `http://localhost:11434/api/generate` | `https://api.openai.com/v1/completions` |
+| `aiProvider.model` | `gpt-4o-mini` | `llama3` |
+| `userAuth.credentialsPath` | `./data/credentials.json` | `./data/creds.json` |
+| `userAuth.defaultUser` | `""` | `admin` |
+| `userAuth.defaultPassword` | `""` | `secret` |
+| `userAuth.credentialSeedFile` | `""` | `./data/credential.seed` |
+| `paths.logDir` | `./log` | `./logs` |
+| `paths.safeDb` | `./known.safe.devices.db` | `./data/safe.db` |
+| `paths.potentialDb` | `./potential.rogue_devices.db` | `./data/potential.db` |
+| `paths.rogueDb` | `./known.rogue.devices.db` | `./data/rogue.db` |
+| `paths.buildDir` | `./dist` | `./build` |
+| `paths.scanOutput` | `./data/scan-results.json` | `./out/scan.json` |
 
-Scan results can optionally be sent to an AI model for summarization or
-anomaly analysis. The feature is opt-in and remains inactive until a
-supported provider is configured in `config.yaml`.
+## Helper Scripts
+
+The project ships several utility scripts under `scripts/` (plus one in the
+root). Run them with `node`:
+
+- `node scripts/add-user.js` – interactively store a username and password in
+  the credential store.
+- `node scripts/scan.js` – perform a headless Bluetooth scan and write results
+  to the file from `paths.scanOutput`.
+- `node scripts/update-datasets.js --once` – fetch the latest IEEE OUI and NVD
+  CVE data, merging new entries into the local `data/` databases.
+- `node scripts/clean.js` – remove logs, temporary databases and the build
+  directory using paths from `config.yaml`.
+- `node export-logs.js aggregated.json` – gather JSON logs from `data/` and
+  write them to `aggregated.json` (omit the filename to print to stdout).
+
+## Optional Features
+
+### AI Summaries
+
+Scan results can be sent to an AI model for summarization or anomaly analysis.
+The feature remains inactive until a supported provider is configured in
+`config.yaml`.
 
 ```yaml
 aiProvider:
@@ -52,6 +106,36 @@ await sendScanSummary('5 devices detected with no vulnerabilities.');
 ```
 
 To opt out, remove the `aiProvider` block or leave `name` empty.
+
+### Rootkit Detection
+
+The `rootkit-checker.js` module wraps the `chkrootkit` utility to scan the host
+for known rootkits:
+
+```bash
+node -e "require('./rootkit-checker').runRootkitCheck().then(console.log)"
+```
+
+### File Integrity Checks
+
+Generate a hash baseline and check for unexpected changes using
+`file-integrity.js`:
+
+```bash
+# create baseline
+node -e "require('./file-integrity').createBaseline(__dirname)"
+# later verify files
+node -e "require('./file-integrity').checkIntegrity(__dirname)"
+```
+
+### Log Export
+
+Combine individual JSON logs under `data/` into a single file or print them to
+stdout:
+
+```bash
+node export-logs.js all-logs.json
+```
 
 ## Release Workflow
 
