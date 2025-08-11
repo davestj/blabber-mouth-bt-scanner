@@ -41,20 +41,54 @@ npm start
 
 The application will open a window and begin scanning for Bluetooth devices.  Press `Ctrl+C` in the terminal to stop scanning when running scripts directly.
 
-## Scripts
 
-- `npm run scan` – perform a headless Bluetooth scan and write the results to the JSON file defined in `config.yaml`.
-- `npm run clean` – remove logs, temporary databases and build artifacts using paths from `config.yaml`.
-- `npm test` – placeholder for future test coverage.
-- `npm run update-data` – fetch the [Wireshark manuf](https://www.wireshark.org/download/automated/data/manuf) (IEEE OUI) list and the NVD [CVE](https://nvd.nist.gov/) feed, merging fresh entries into flat files under `data/`.
+## Configuration
 
-Paths for logs, databases and scan output can be adjusted in `config.yaml` under the `paths` section.
+All application settings live in `config.yaml`. The table below lists each field,
+its default value and an example override.
 
-## AI Summaries (Optional)
+| Field | Default | Example |
+| --- | --- | --- |
+| `scanner.services` | `[]` | `["180d", "180f"]` |
+| `scanner.allowDuplicates` | `true` | `false` |
+| `aiProvider.name` | `openai` | `ollama` |
+| `aiProvider.apiKey` | `YOUR_API_KEY` | `sk-123abc` |
+| `aiProvider.endpoint` | `http://localhost:11434/api/generate` | `https://api.openai.com/v1/completions` |
+| `aiProvider.model` | `gpt-4o-mini` | `llama3` |
+| `userAuth.credentialsPath` | `./data/credentials.json` | `./data/creds.json` |
+| `userAuth.defaultUser` | `""` | `admin` |
+| `userAuth.defaultPassword` | `""` | `secret` |
+| `userAuth.credentialSeedFile` | `""` | `./data/credential.seed` |
+| `paths.logDir` | `./log` | `./logs` |
+| `paths.safeDb` | `./known.safe.devices.db` | `./data/safe.db` |
+| `paths.potentialDb` | `./potential.rogue_devices.db` | `./data/potential.db` |
+| `paths.rogueDb` | `./known.rogue.devices.db` | `./data/rogue.db` |
+| `paths.buildDir` | `./dist` | `./build` |
+| `paths.scanOutput` | `./data/scan-results.json` | `./out/scan.json` |
 
-Scan results can optionally be sent to an AI model for summarization or
-anomaly analysis. The feature is opt-in and remains inactive until a
-supported provider is configured in `config.yaml`.
+## Helper Scripts
+
+The project ships several utility scripts under `scripts/` (plus one in the
+root). Run them with `node`:
+
+- `node scripts/add-user.js` – interactively store a username and password in
+  the credential store.
+- `node scripts/scan.js` – perform a headless Bluetooth scan and write results
+  to the file from `paths.scanOutput`.
+- `node scripts/update-datasets.js --once` – fetch the latest IEEE OUI and NVD
+  CVE data, merging new entries into the local `data/` databases.
+- `node scripts/clean.js` – remove logs, temporary databases and the build
+  directory using paths from `config.yaml`.
+- `node export-logs.js aggregated.json` – gather JSON logs from `data/` and
+  write them to `aggregated.json` (omit the filename to print to stdout).
+
+## Optional Features
+
+### AI Summaries
+
+Scan results can be sent to an AI model for summarization or anomaly analysis.
+The feature remains inactive until a supported provider is configured in
+`config.yaml`.
 
 ```yaml
 aiProvider:
@@ -72,6 +106,36 @@ await sendScanSummary('5 devices detected with no vulnerabilities.');
 ```
 
 To opt out, remove the `aiProvider` block or leave `name` empty.
+
+### Rootkit Detection
+
+The `rootkit-checker.js` module wraps the `chkrootkit` utility to scan the host
+for known rootkits:
+
+```bash
+node -e "require('./rootkit-checker').runRootkitCheck().then(console.log)"
+```
+
+### File Integrity Checks
+
+Generate a hash baseline and check for unexpected changes using
+`file-integrity.js`:
+
+```bash
+# create baseline
+node -e "require('./file-integrity').createBaseline(__dirname)"
+# later verify files
+node -e "require('./file-integrity').checkIntegrity(__dirname)"
+```
+
+### Log Export
+
+Combine individual JSON logs under `data/` into a single file or print them to
+stdout:
+
+```bash
+node export-logs.js all-logs.json
+```
 
 ## Release Workflow
 
