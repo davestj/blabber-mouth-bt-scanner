@@ -19,7 +19,8 @@ const {
   DialogActions,
   Button,
   Box,
-  SvgIcon
+  SvgIcon,
+  TextField
 } = require('@mui/material');
 const { FontAwesomeIcon } = require('@fortawesome/react-fontawesome');
 const { faSun, faMoon } = require('@fortawesome/free-solid-svg-icons');
@@ -27,6 +28,7 @@ const { faSun, faMoon } = require('@fortawesome/free-solid-svg-icons');
 const noble = (window.electron && window.electron.noble) || require('@abandonware/noble');
 const { ipcRenderer } = (window.electron) || require('electron');
 const { checkDeviceVulnerabilities } = require('./vulnerability-checker');
+const session = require('./session');
 
 function BluetoothIcon(props) {
   return (
@@ -36,7 +38,48 @@ function BluetoothIcon(props) {
   );
 }
 
-function App() {
+function Login({ onSuccess }) {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+
+  const handleSubmit = e => {
+    e.preventDefault();
+    const token = session.login(username, password);
+    if (token) {
+      onSuccess(token);
+    } else {
+      setError('Invalid credentials');
+    }
+  };
+
+  return (
+    React.createElement(Container, { maxWidth: 'sm', sx: { mt: 8 } },
+      React.createElement(Box, { component: 'form', onSubmit: handleSubmit },
+        React.createElement(Typography, { variant: 'h5', sx: { mb: 2 } }, 'Login'),
+        React.createElement(TextField, {
+          label: 'Username',
+          fullWidth: true,
+          margin: 'normal',
+          value: username,
+          onChange: e => setUsername(e.target.value)
+        }),
+        React.createElement(TextField, {
+          label: 'Password',
+          type: 'password',
+          fullWidth: true,
+          margin: 'normal',
+          value: password,
+          onChange: e => setPassword(e.target.value)
+        }),
+        error && React.createElement(Typography, { color: 'error' }, error),
+        React.createElement(Button, { type: 'submit', variant: 'contained', fullWidth: true, sx: { mt: 2 } }, 'Login')
+      )
+    )
+  );
+}
+
+function ScannerApp({ onLogout }) {
   const [devices, setDevices] = useState([]);
   const [selectedDevice, setSelectedDevice] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
@@ -109,6 +152,7 @@ function App() {
         React.createElement(Toolbar, null,
           React.createElement(BluetoothIcon, { sx: { mr: 2 } }),
           React.createElement(Typography, { variant: 'h6', sx: { flexGrow: 1 } }, 'Blabber-Mouth BT Scanner'),
+          React.createElement(Button, { color: 'inherit', onClick: onLogout }, 'Logout'),
           React.createElement(IconButton, {
             color: 'inherit',
             'aria-label': 'toggle dark mode',
@@ -167,6 +211,26 @@ function App() {
   );
 }
 
+function Root() {
+  const [token, setToken] = useState(null);
+
+  useEffect(() => {
+    if (!token) return;
+    const interval = setInterval(() => {
+      if (!session.validate(token)) {
+        setToken(null);
+        clearInterval(interval);
+      }
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [token]);
+
+  if (!token) {
+    return React.createElement(Login, { onSuccess: setToken });
+  }
+  return React.createElement(ScannerApp, { onLogout: () => { session.logout(token); setToken(null); } });
+}
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(React.createElement(App));
+root.render(React.createElement(Root));
 
