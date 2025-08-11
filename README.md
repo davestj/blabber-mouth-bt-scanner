@@ -53,5 +53,16 @@ await sendScanSummary('5 devices detected with no vulnerabilities.');
 
 To opt out, remove the `aiProvider` block or leave `name` empty.
 
+## Release Workflow
+
+This project uses manual versioning that follows [Semantic Versioning](https://semver.org/).
+
+1. For every change merged into the `master` or `future` branches, add an entry to [CHANGELOG.md](CHANGELOG.md) under **Unreleased**.
+2. When cutting a release:
+   - Update the version number in `package.json` (and any other manifests such as `Info.plist`) using `npm version <major|minor|patch>`.
+   - Move the accumulated notes from **Unreleased** to a new versioned section in the changelog and include the release date.
+   - Commit the changes with a message like `chore(release): vX.Y.Z` and create a matching Git tag.
+3. Push the commit and tag to publish the release.
+
 ## Contributing
 Contributions are welcome!  Please follow the guidelines in `CHANGELOG.md` and use pull requests for all changes.

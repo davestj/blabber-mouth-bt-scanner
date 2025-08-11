@@ -5,6 +5,9 @@ All notable changes to this project will be documented in this file.  The format
 ## [Unreleased]
 - Use this section for changes that have not yet been released.
 
+### Added
+- Documented manual release workflow in README and clarified changelog updates for each commit to `master` or `future`.
+
 ## [1.0.0] - 2025-08-10
 ### Added
 - Initial release with Bluetooth scanning, vulnerability checking and structured logging.
