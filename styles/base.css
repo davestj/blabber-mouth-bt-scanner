@@ -1,0 +1,49 @@
+/* Base styles shared across application */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap');
+
+:root {
+  --primary-dark: #0a0e1a;
+  --secondary-dark: #141922;
+  --panel-dark: #1a1f2e;
+  --electric-blue: #00d4ff;
+  --tactical-blue: #0099cc;
+  --warning-red: #ff3333;
+  --alert-orange: #ff9933;
+  --success-green: #00ff41;
+  --metal-silver: #c0c0c0;
+  --brass-gold: #d4af37;
+  --grid-color: rgba(0, 212, 255, 0.1);
+  --radar-green: #00ff00;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: 'Share Tech Mono', monospace;
+  background: var(--primary-dark);
+  color: var(--metal-silver);
+  height: 100vh;
+  overflow: hidden;
+}
+
+#device-list li {
+  list-style: none;
+  margin: 0.25rem 0;
+}
+
+#close-modal {
+  cursor: pointer;
+}
+
+.bm-hidden {
+  display: none;
+}

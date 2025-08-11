@@ -1,0 +1,527 @@
+/* 
+ * File: dashboard.css
+ * Author: David St John
+ * Date: 2025-08-10
+ * Purpose: Military-grade Bluetooth scanner dashboard for BTHL
+ * Project: Beyond The Horizon Labs - Tactical BT Operations
+ */
+
+
+/* Top Bar */
+.top-bar {
+    background: linear-gradient(90deg, var(--secondary-dark), var(--panel-dark));
+    border-bottom: 2px solid var(--tactical-blue);
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 20px rgba(0, 153, 204, 0.3);
+}
+
+.agency-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.agency-logo {
+    width: 40px;
+    height: 40px;
+    background: var(--tactical-blue);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+}
+
+.agency-title {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--electric-blue);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.status-indicators {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 12px;
+    background: rgba(0, 153, 204, 0.1);
+    border: 1px solid var(--tactical-blue);
+    font-size: 11px;
+    text-transform: uppercase;
+}
+
+.indicator.active {
+    border-color: var(--success-green);
+    color: var(--success-green);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* Main Dashboard Grid */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr 450px 350px;
+    grid-template-rows: 1fr;
+    height: calc(100vh - 62px);
+    gap: 2px;
+    background: var(--tactical-blue);
+    padding: 2px;
+}
+
+/* Radar Scanner Panel */
+.radar-panel {
+    background: var(--secondary-dark);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.panel-header {
+    background: linear-gradient(90deg, var(--panel-dark), var(--secondary-dark));
+    padding: 10px 15px;
+    border-bottom: 1px solid var(--tactical-blue);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.panel-title {
+    font-size: 12px;
+    text-transform: uppercase;
+    color: var(--electric-blue);
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.radar-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    padding: 40px;
+}
+
+.radar-svg {
+    width: 100%;
+    height: 100%;
+    max-width: 500px;
+    max-height: 500px;
+}
+
+/* Device List Panel */
+.device-panel {
+    background: var(--secondary-dark);
+    display: flex;
+    flex-direction: column;
+}
+
+.device-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+}
+
+.device-item {
+    background: var(--panel-dark);
+    border: 1px solid var(--tactical-blue);
+    margin-bottom: 10px;
+    padding: 12px;
+    position: relative;
+    transition: all 0.3s;
+    cursor: pointer;
+}
+
+.device-item:hover {
+    border-color: var(--electric-blue);
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+}
+
+.device-item.flagged {
+    border-color: var(--warning-red);
+    animation: alert-flash 2s infinite;
+}
+
+@keyframes alert-flash {
+    0%, 100% { background: var(--panel-dark); }
+    50% { background: rgba(255, 51, 51, 0.1); }
+}
+
+.device-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.device-name {
+    font-size: 13px;
+    color: var(--electric-blue);
+    font-weight: bold;
+}
+
+.device-status {
+    display: flex;
+    gap: 5px;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--success-green);
+}
+
+.device-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    font-size: 10px;
+    color: var(--metal-silver);
+    margin-top: 8px;
+}
+
+.detail-item {
+    display: flex;
+    justify-content: space-between;
+}
+
+.detail-label {
+    color: var(--tactical-blue);
+    text-transform: uppercase;
+}
+
+.detail-value {
+    color: var(--electric-blue);
+    font-family: 'Orbitron', sans-serif;
+}
+
+/* Analysis Panel */
+.analysis-panel {
+    background: var(--secondary-dark);
+    display: flex;
+    flex-direction: column;
+}
+
+.threat-matrix {
+    padding: 15px;
+}
+
+.threat-level {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px;
+    background: var(--panel-dark);
+    border: 2px solid var(--success-green);
+    margin-bottom: 15px;
+}
+
+.threat-level.medium {
+    border-color: var(--alert-orange);
+}
+
+.threat-level.high {
+    border-color: var(--warning-red);
+    animation: threat-pulse 1s infinite;
+}
+
+@keyframes threat-pulse {
+    0%, 100% { box-shadow: 0 0 0 rgba(255, 51, 51, 0.5); }
+    50% { box-shadow: 0 0 30px rgba(255, 51, 51, 0.8); }
+}
+
+.threat-meter {
+    width: 100%;
+    height: 30px;
+    background: var(--primary-dark);
+    border: 1px solid var(--tactical-blue);
+    position: relative;
+    overflow: hidden;
+}
+
+.threat-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--success-green), var(--alert-orange), var(--warning-red));
+    width: 30%;
+    transition: width 0.5s;
+}
+
+/* Signal Analysis */
+.signal-graph {
+    padding: 15px;
+    height: 200px;
+    position: relative;
+}
+
+.waveform-canvas {
+    width: 100%;
+    height: 100%;
+    background: var(--panel-dark);
+    border: 1px solid var(--tactical-blue);
+}
+
+/* Control Buttons */
+.control-panel {
+    padding: 15px;
+    display: flex;
+    gap: 10px;
+    border-top: 1px solid var(--tactical-blue);
+}
+
+.control-btn {
+    flex: 1;
+    padding: 10px;
+    background: linear-gradient(135deg, var(--tactical-blue), var(--electric-blue));
+    border: none;
+    color: var(--primary-dark);
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+}
+
+.control-btn:hover {
+    box-shadow: 0 0 20px var(--electric-blue);
+    transform: translateY(-2px);
+}
+
+.control-btn.danger {
+    background: linear-gradient(135deg, var(--warning-red), #ff6666);
+}
+
+.control-btn.scanning {
+    animation: scan-pulse 1s infinite;
+}
+
+@keyframes scan-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* Distance Estimation */
+.distance-indicator {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(0, 153, 204, 0.1);
+    border: 1px solid var(--tactical-blue);
+    padding: 8px 12px;
+    font-size: 10px;
+    text-transform: uppercase;
+}
+
+.distance-value {
+    color: var(--electric-blue);
+    font-size: 14px;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--primary-dark);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--tactical-blue);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--electric-blue);
+}
+/* Modal Styles */
+.device-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(10, 14, 26, 0.95);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+}
+
+.device-modal.active {
+    display: flex;
+}
+
+.modal-content {
+    background: var(--secondary-dark);
+    border: 2px solid var(--electric-blue);
+    width: 600px;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.modal-header {
+    background: var(--panel-dark);
+    padding: 15px;
+    border-bottom: 1px solid var(--tactical-blue);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-title {
+    color: var(--electric-blue);
+    font-size: 16px;
+    text-transform: uppercase;
+}
+
+.modal-close {
+    background: transparent;
+    border: none;
+    color: var(--warning-red);
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.device-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.info-block {
+    background: var(--panel-dark);
+    border: 1px solid var(--tactical-blue);
+    padding: 10px;
+}
+
+.info-label {
+    color: var(--tactical-blue);
+    font-size: 10px;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+}
+
+.info-value {
+    color: var(--electric-blue);
+    font-size: 14px;
+    font-family: 'Orbitron', sans-serif;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 10px;
+    padding: 15px;
+    border-top: 1px solid var(--tactical-blue);
+}
+
+/* Monitoring Tab */
+.monitoring-tab {
+    position: fixed;
+    right: -400px;
+    top: 62px;
+    width: 400px;
+    height: calc(100vh - 62px);
+    background: var(--secondary-dark);
+    border-left: 2px solid var(--tactical-blue);
+    transition: right 0.3s;
+    z-index: 500;
+}
+
+.monitoring-tab.active {
+    right: 0;
+}
+
+.monitoring-header {
+    background: var(--panel-dark);
+    padding: 15px;
+    border-bottom: 1px solid var(--tactical-blue);
+}
+
+.monitoring-list {
+    padding: 15px;
+    overflow-y: auto;
+    height: calc(100% - 60px);
+}
+
+.monitored-device {
+    background: var(--panel-dark);
+    border: 1px solid var(--warning-red);
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+/* Security Tab Styles */
+.security-tab {
+    position: fixed;
+    left: -400px;
+    top: 62px;
+    width: 400px;
+    height: calc(100vh - 62px);
+    background: var(--secondary-dark);
+    border-right: 2px solid var(--tactical-blue);
+    transition: left 0.3s;
+    z-index: 500;
+}
+
+.security-tab.active {
+    left: 0;
+}
+
+.security-results {
+    padding: 15px;
+    overflow-y: auto;
+    height: calc(100% - 120px);
+}
+
+.security-item {
+    background: var(--panel-dark);
+    border: 1px solid var(--tactical-blue);
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+.security-item.threat {
+    border-color: var(--warning-red);
+}
+
+.security-toggle {
+    position: fixed;
+    left: 10px;
+    top: 80px;
+    background: var(--tactical-blue);
+    color: var(--primary-dark);
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    z-index: 501;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+}
