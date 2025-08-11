@@ -1,11 +1,15 @@
 const fs = require('fs');
 const path = require('path');
 const { createLogger, transports, format } = require('winston');
+const { get } = require('./config');
 
-// Ensure log directory exists
-const logDir = path.join(__dirname, 'log');
+const cfg = get();
+const logDir = path.join(
+  __dirname,
+  (cfg.paths && cfg.paths.logDir) || 'log'
+);
 if (!fs.existsSync(logDir)) {
-    fs.mkdirSync(logDir);
+  fs.mkdirSync(logDir, { recursive: true });
 }
 
 const logger = createLogger({

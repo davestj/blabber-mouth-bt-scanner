@@ -1,0 +1,17 @@
+scanner:
+  services: []
+  allowDuplicates: true
+aiProvider:
+  name: openai # or 'ollama'
+  apiKey: YOUR_API_KEY # required for OpenAI
+  endpoint: http://localhost:11434/api/generate # default Ollama endpoint
+  model: gpt-4o-mini
+userAuth:
+  credentialsPath: ./data/credentials.json
+paths:
+  logDir: ./log
+  safeDb: ./known.safe.devices.db
+  potentialDb: ./potential.rogue_devices.db
+  rogueDb: ./known.rogue.devices.db
+  buildDir: ./dist
+  scanOutput: ./data/scan-results.json
