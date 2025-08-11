@@ -20,18 +20,51 @@ function ensureDir(filePath) {
 
 function loadStore() {
   const filePath = getStorePath();
+  let store;
   try {
     const data = fs.readFileSync(filePath, 'utf8');
-    return JSON.parse(data);
+    store = JSON.parse(data);
   } catch (err) {
-    return {};
+    store = {};
   }
+  return seedStoreIfNeeded(store);
 }
 
 function saveStore(store) {
   const filePath = getStorePath();
   ensureDir(filePath);
   fs.writeFileSync(filePath, JSON.stringify(store, null, 2));
+}
+
+function seedStoreIfNeeded(store) {
+  if (Object.keys(store).length > 0) return store;
+  const config = get() || {};
+  const auth = config.userAuth || {};
+  let username;
+  let password;
+
+  if (auth.defaultUser && auth.defaultPassword) {
+    username = auth.defaultUser;
+    password = auth.defaultPassword;
+  } else if (auth.credentialSeedFile) {
+    const seedPath = path.isAbsolute(auth.credentialSeedFile)
+      ? auth.credentialSeedFile
+      : path.join(__dirname, auth.credentialSeedFile);
+    try {
+      const seed = fs.readFileSync(seedPath, 'utf8').trim();
+      [username, password] = seed.split(':');
+    } catch (err) {
+      // ignore missing seed file
+    }
+  }
+
+  if (username && password) {
+    const hash = bcrypt.hashSync(password, SALT_ROUNDS);
+    store[username] = hash;
+    saveStore(store);
+  }
+
+  return store;
 }
 
 function saveCredentials(username, password) {
