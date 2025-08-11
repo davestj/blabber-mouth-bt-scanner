@@ -1,3 +1,15 @@
+![Build](https://img.shields.io/github/actions/workflow/status/davestj/blabber-mouth-bt-scanner/dev.yml?branch=main&label=build)
+![Release](https://img.shields.io/github/v/release/davestj/blabber-mouth-bt-scanner)
+![License](https://img.shields.io/github/license/davestj/blabber-mouth-bt-scanner)
+![Language](https://img.shields.io/github/languages/top/davestj/blabber-mouth-bt-scanner)
+![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20Windows-blue)
+![Version](https://img.shields.io/badge/version-1.0.0-blue)
+
+**Author:** David Andrew St John<br>
+**Version:** 1.0.0<br>
+**Last Updated:** August 11, 2025<br>
+**Repository:** [blabber-mouth-bt-scanner](https://github.com/davestj/blabber-mouth-bt-scanner)
+
 # Blabber Mouth BT Scanner
 
 Blabber Mouth BT Scanner is an Electron-based desktop application that scans for nearby Bluetooth devices and highlights potential security issues.  It combines the [`@abandonware/noble`](https://github.com/abandonware/noble) Bluetooth library with a simple vulnerability feed to help developers and researchers inspect their environment.
