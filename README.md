@@ -163,15 +163,13 @@ npm run export-logs     # Aggregate JSON logs
 ├── database.js         # SQLite device persistence
 ├── auth.html           # Military-grade login screen
 ├── dashboard.html      # Tactical operations interface
-├── renderer.js         # React-based UI components
-└── bluetooth-scanner.js # Noble BT integration
+└── scanner.js          # Noble BT integration
 ```
 
 ## 🔒 Security Considerations
 
 - Credential store (`data/credentials.json`) excluded from Git
 - All passwords hashed with bcrypt (10 rounds)
-- Session tokens expire after 15 minutes
 - File integrity baseline on first launch
 - Rootkit detection via chkrootkit wrapper
 

@@ -478,11 +478,14 @@ ipcMain.handle('authenticate', async (event, username, password) => {
     try {
         const { verifyCredentials } = require('./credentials');
         const isValid = verifyCredentials(username, password);
-        
+
         if (isValid) {
             currentOperator = username.toUpperCase();
             logger.info(`Authentication successful: ${username}`);
-            return { success: true, token: require('crypto').randomBytes(32).toString('hex') };
+            if (mainWindow) {
+                mainWindow.loadFile('dashboard.html');
+            }
+            return { success: true };
         } else {
             logger.warn(`Authentication failed: ${username}`);
             return { success: false, error: 'Invalid credentials' };
@@ -490,19 +493,6 @@ ipcMain.handle('authenticate', async (event, username, password) => {
     } catch (error) {
         console.error('Authentication error:', error);
         return { success: false, error: 'Authentication system error' };
-    }
-});
-
-// Navigation IPC Handlers
-ipcMain.handle('navigate-to-dashboard', async () => {
-    if (mainWindow) {
-        mainWindow.loadFile('dashboard.html');
-    }
-});
-
-ipcMain.handle('load-page', async (event, page) => {
-    if (mainWindow) {
-        mainWindow.loadFile(page);
     }
 });
 

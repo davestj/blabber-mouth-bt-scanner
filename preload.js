@@ -76,15 +76,9 @@ contextBridge.exposeInMainWorld('bthlAPI', {
     // Authentication Methods
     auth: {
         authenticate: (username, password) => ipcRenderer.invoke('authenticate', username, password),
-        navigateToDashboard: () => ipcRenderer.invoke('navigate-to-dashboard'),
         logout: () => ipcRenderer.invoke('logout')
     },
-    
-    // Navigation Methods
-    navigation: {
-        loadPage: (page) => ipcRenderer.invoke('load-page', page)
-    },
-    
+
     // App Info
     app: {
         getVersion: () => ipcRenderer.invoke('get-version'),
