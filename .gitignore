@@ -1,3 +1,33 @@
-node_modules
-log
+# Dependencies
+node_modules/
+
+# Logs
+log/
+
+# Databases
+*.db
+!known.safe.devices.db
+!known.rogue.devices.db
+!potential.rogue_devices.db
+
+# Downloaded vulnerability feeds
+data/*.json.gz
+
+# Configuration
+config.yaml
+
+# Credential stores
+data/credentials.*
+*.pem
+*.p12
+*.pfx
+*.key
+*.crt
+*.cer
+
+# OS artifacts
+.DS_Store
+Thumbs.db
+
+# Package files
 package-lock.json
