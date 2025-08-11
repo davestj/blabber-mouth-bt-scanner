@@ -86,7 +86,7 @@ async function main() {
 
 if (require.main === module) {
     main().catch(err => {
-        console.error('Update failed:', err.message);
+        console.error(`Update failed: ${err.message}`);
         process.exit(1);
     });
 }

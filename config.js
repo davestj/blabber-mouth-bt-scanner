@@ -10,7 +10,7 @@ function loadConfig(configPath) {
     const fileContents = fs.readFileSync(filePath, 'utf8');
     config = yaml.load(fileContents) || {};
   } catch (err) {
-    console.error(`Failed to load config from ${filePath}:`, err);
+    console.error(`Failed to load config from ${filePath}: ${err.message}`);
     config = {};
   }
   return config;
