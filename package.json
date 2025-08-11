@@ -1,19 +1,48 @@
 {
   "name": "blabber-mouth-bt-scanner",
   "version": "1.0.0",
+  "description": "Military-grade Bluetooth scanner for threat detection and device monitoring. Supports macOS ARM64, Linux/Debian, Windows, and Raspberry Pi deployment.",
   "main": "main.js",
-  "scripts": {
-    "build": "npm install",
-    "start": "electron .",
-    "clean": "node scripts/clean.js",
-    "scan": "node scripts/scan.js",
-    "test": "jest",
-    "update-data": "node scripts/update-datasets.js --once"
-  },
-  "keywords": [],
-  "author": "",
+  "author": "David Andrew St John <davestj@gmail.com>",
   "license": "ISC",
-  "description": "A macOS desktop app using Electron and Node.js that scans for Bluetooth devices and checks them for vulnerabilities.",
+  "keywords": [
+    "bluetooth",
+    "security",
+    "scanner",
+    "electron",
+    "military",
+    "bthl",
+    "threat-detection"
+  ],
+  "scripts": {
+    "start": "electron .",
+    "build": "npm install && npm run build:db",
+    "build:db": "node -e \"require('./database')\" || true",
+    "clean": "node scripts/clean.js",
+    "clean:all": "npm run clean && rm -rf node_modules package-lock.json",
+    "clean:logs": "rm -rf log/*.log data/*.json",
+    "clean:db": "rm -f data/bthl-scanner.db data/*.db",
+    "scan": "node scripts/scan.js",
+    "scan:headless": "node scanner.js",
+    "test": "jest",
+    "test:noble": "node testNoble.js",
+    "lint": "eslint .",
+    "add-user": "node scripts/add-user.js",
+    "update-data": "node scripts/update-datasets.js --once",
+    "update-data:scheduled": "node scripts/update-datasets.js",
+    "export-logs": "node export-logs.js",
+    "export-logs:file": "node export-logs.js exported-logs.json",
+    "integrity:baseline": "node -e \"require('./file-integrity').createBaseline(process.cwd())\"",
+    "integrity:check": "node -e \"require('./file-integrity').checkIntegrity(process.cwd())\"",
+    "rootkit:check": "node -e \"require('./rootkit-checker').runRootkitCheck().then(console.log)\"",
+    "dev": "NODE_ENV=development npm start",
+    "prod": "NODE_ENV=production npm start",
+    "rebuild": "npm rebuild @abandonware/noble",
+    "postinstall": "npm run rebuild",
+    "db:init": "node -e \"require('./database')\"",
+    "db:stats": "node -e \"require('./database').getStatistics().then(console.log)\"",
+    "prestart": "npm run db:init"
+  },
   "dependencies": {
     "@abandonware/noble": "^1.9.2-25",
     "@emotion/react": "^11.11.4",
@@ -25,15 +54,37 @@
     "bcrypt": "^5.1.1",
     "cli-table": "^0.3.11",
     "js-yaml": "^4.1.0",
-    "noble": "^1.9.1",
     "node-cron": "^3.0.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "sqlite3": "^5.1.7",
     "winston": "^3.13.0"
   },
   "devDependencies": {
     "electron": "^31.7.7",
+    "electron-builder": "^24.6.4",
     "eslint": "^9.33.0",
     "jest": "^29.7.0"
-  }
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "os": [
+    "darwin",
+    "linux",
+    "win32"
+  ],
+  "cpu": [
+    "arm64",
+    "x64"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/davestj/blabber-mouth-bt-scanner"
+  },
+  "bugs": {
+    "url": "https://github.com/davestj/blabber-mouth-bt-scanner/issues"
+  },
+  "homepage": "https://github.com/davestj/blabber-mouth-bt-scanner#readme"
 }

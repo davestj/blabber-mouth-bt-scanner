@@ -1,0 +1,1576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BTHL Scanner - Tactical Operations Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        /* 
+         * File: dashboard.html
+         * Author: David St John
+         * Date: 2025-08-10
+         * Purpose: Military-grade Bluetooth scanner dashboard for BTHL
+         * Project: Beyond The Horizon Labs - Tactical BT Operations
+         */
+
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap');
+
+        :root {
+            --primary-dark: #0a0e1a;
+            --secondary-dark: #141922;
+            --panel-dark: #1a1f2e;
+            --electric-blue: #00d4ff;
+            --tactical-blue: #0099cc;
+            --warning-red: #ff3333;
+            --alert-orange: #ff9933;
+            --success-green: #00ff41;
+            --metal-silver: #c0c0c0;
+            --brass-gold: #d4af37;
+            --grid-color: rgba(0, 212, 255, 0.1);
+            --radar-green: #00ff00;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Share Tech Mono', monospace;
+            background: var(--primary-dark);
+            color: var(--metal-silver);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            background: linear-gradient(90deg, var(--secondary-dark), var(--panel-dark));
+            border-bottom: 2px solid var(--tactical-blue);
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 20px rgba(0, 153, 204, 0.3);
+        }
+
+        .agency-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .agency-logo {
+            width: 40px;
+            height: 40px;
+            background: var(--tactical-blue);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+        }
+
+        .agency-title {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: 18px;
+            color: var(--electric-blue);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .status-indicators {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 5px 12px;
+            background: rgba(0, 153, 204, 0.1);
+            border: 1px solid var(--tactical-blue);
+            font-size: 11px;
+            text-transform: uppercase;
+        }
+
+        .indicator.active {
+            border-color: var(--success-green);
+            color: var(--success-green);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Main Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 450px 350px;
+            grid-template-rows: 1fr;
+            height: calc(100vh - 62px);
+            gap: 2px;
+            background: var(--tactical-blue);
+            padding: 2px;
+        }
+
+        /* Radar Scanner Panel */
+        .radar-panel {
+            background: var(--secondary-dark);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-header {
+            background: linear-gradient(90deg, var(--panel-dark), var(--secondary-dark));
+            padding: 10px 15px;
+            border-bottom: 1px solid var(--tactical-blue);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .panel-title {
+            font-size: 12px;
+            text-transform: uppercase;
+            color: var(--electric-blue);
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .radar-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: 40px;
+        }
+
+        .radar-svg {
+            width: 100%;
+            height: 100%;
+            max-width: 500px;
+            max-height: 500px;
+        }
+
+        /* Device List Panel */
+        .device-panel {
+            background: var(--secondary-dark);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .device-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .device-item {
+            background: var(--panel-dark);
+            border: 1px solid var(--tactical-blue);
+            margin-bottom: 10px;
+            padding: 12px;
+            position: relative;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .device-item:hover {
+            border-color: var(--electric-blue);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+        }
+
+        .device-item.flagged {
+            border-color: var(--warning-red);
+            animation: alert-flash 2s infinite;
+        }
+
+        @keyframes alert-flash {
+            0%, 100% { background: var(--panel-dark); }
+            50% { background: rgba(255, 51, 51, 0.1); }
+        }
+
+        .device-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .device-name {
+            font-size: 13px;
+            color: var(--electric-blue);
+            font-weight: bold;
+        }
+
+        .device-status {
+            display: flex;
+            gap: 5px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success-green);
+        }
+
+        .device-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            font-size: 10px;
+            color: var(--metal-silver);
+            margin-top: 8px;
+        }
+
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .detail-label {
+            color: var(--tactical-blue);
+            text-transform: uppercase;
+        }
+
+        .detail-value {
+            color: var(--electric-blue);
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        /* Analysis Panel */
+        .analysis-panel {
+            background: var(--secondary-dark);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .threat-matrix {
+            padding: 15px;
+        }
+
+        .threat-level {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px;
+            background: var(--panel-dark);
+            border: 2px solid var(--success-green);
+            margin-bottom: 15px;
+        }
+
+        .threat-level.medium {
+            border-color: var(--alert-orange);
+        }
+
+        .threat-level.high {
+            border-color: var(--warning-red);
+            animation: threat-pulse 1s infinite;
+        }
+
+        @keyframes threat-pulse {
+            0%, 100% { box-shadow: 0 0 0 rgba(255, 51, 51, 0.5); }
+            50% { box-shadow: 0 0 30px rgba(255, 51, 51, 0.8); }
+        }
+
+        .threat-meter {
+            width: 100%;
+            height: 30px;
+            background: var(--primary-dark);
+            border: 1px solid var(--tactical-blue);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .threat-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--success-green), var(--alert-orange), var(--warning-red));
+            width: 30%;
+            transition: width 0.5s;
+        }
+
+        /* Signal Analysis */
+        .signal-graph {
+            padding: 15px;
+            height: 200px;
+            position: relative;
+        }
+
+        .waveform-canvas {
+            width: 100%;
+            height: 100%;
+            background: var(--panel-dark);
+            border: 1px solid var(--tactical-blue);
+        }
+
+        /* Control Buttons */
+        .control-panel {
+            padding: 15px;
+            display: flex;
+            gap: 10px;
+            border-top: 1px solid var(--tactical-blue);
+        }
+
+        .control-btn {
+            flex: 1;
+            padding: 10px;
+            background: linear-gradient(135deg, var(--tactical-blue), var(--electric-blue));
+            border: none;
+            color: var(--primary-dark);
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: 11px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .control-btn:hover {
+            box-shadow: 0 0 20px var(--electric-blue);
+            transform: translateY(-2px);
+        }
+
+        .control-btn.danger {
+            background: linear-gradient(135deg, var(--warning-red), #ff6666);
+        }
+
+        .control-btn.scanning {
+            animation: scan-pulse 1s infinite;
+        }
+
+        @keyframes scan-pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Distance Estimation */
+        .distance-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 153, 204, 0.1);
+            border: 1px solid var(--tactical-blue);
+            padding: 8px 12px;
+            font-size: 10px;
+            text-transform: uppercase;
+        }
+
+        .distance-value {
+            color: var(--electric-blue);
+            font-size: 14px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--primary-dark);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--tactical-blue);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--electric-blue);
+        }
+    </style>
+    <style>
+        /* Modal Styles */
+        .device-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 14, 26, 0.95);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .device-modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: var(--secondary-dark);
+            border: 2px solid var(--electric-blue);
+            width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            background: var(--panel-dark);
+            padding: 15px;
+            border-bottom: 1px solid var(--tactical-blue);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-title {
+            color: var(--electric-blue);
+            font-size: 16px;
+            text-transform: uppercase;
+        }
+        
+        .modal-close {
+            background: transparent;
+            border: none;
+            color: var(--warning-red);
+            font-size: 20px;
+            cursor: pointer;
+        }
+        
+        .modal-body {
+            padding: 20px;
+        }
+        
+        .device-info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .info-block {
+            background: var(--panel-dark);
+            border: 1px solid var(--tactical-blue);
+            padding: 10px;
+        }
+        
+        .info-label {
+            color: var(--tactical-blue);
+            font-size: 10px;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+        
+        .info-value {
+            color: var(--electric-blue);
+            font-size: 14px;
+            font-family: 'Orbitron', sans-serif;
+        }
+        
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            padding: 15px;
+            border-top: 1px solid var(--tactical-blue);
+        }
+        
+        /* Monitoring Tab */
+        .monitoring-tab {
+            position: fixed;
+            right: -400px;
+            top: 62px;
+            width: 400px;
+            height: calc(100vh - 62px);
+            background: var(--secondary-dark);
+            border-left: 2px solid var(--tactical-blue);
+            transition: right 0.3s;
+            z-index: 500;
+        }
+        
+        .monitoring-tab.active {
+            right: 0;
+        }
+        
+        .monitoring-header {
+            background: var(--panel-dark);
+            padding: 15px;
+            border-bottom: 1px solid var(--tactical-blue);
+        }
+        
+        .monitoring-list {
+            padding: 15px;
+            overflow-y: auto;
+            height: calc(100% - 60px);
+        }
+        
+        .monitored-device {
+            background: var(--panel-dark);
+            border: 1px solid var(--warning-red);
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        
+        /* Security Tab Styles */
+        .security-tab {
+            position: fixed;
+            left: -400px;
+            top: 62px;
+            width: 400px;
+            height: calc(100vh - 62px);
+            background: var(--secondary-dark);
+            border-right: 2px solid var(--tactical-blue);
+            transition: left 0.3s;
+            z-index: 500;
+        }
+        
+        .security-tab.active {
+            left: 0;
+        }
+        
+        .security-results {
+            padding: 15px;
+            overflow-y: auto;
+            height: calc(100% - 120px);
+        }
+        
+        .security-item {
+            background: var(--panel-dark);
+            border: 1px solid var(--tactical-blue);
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .security-item.threat {
+            border-color: var(--warning-red);
+        }
+        
+        .security-toggle {
+            position: fixed;
+            left: 10px;
+            top: 80px;
+            background: var(--tactical-blue);
+            color: var(--primary-dark);
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            z-index: 501;
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Command Bar -->
+    <div class="top-bar">
+        <div class="agency-header">
+            <div class="agency-logo">
+                <i class="fas fa-satellite-dish"></i>
+            </div>
+
+    <!-- Security Scan Tab -->
+    <button class="security-toggle" onclick="toggleSecurityTab()">SECURITY</button>
+    <div class="security-tab" id="securityTab">
+        <div class="monitoring-header">
+            <div class="panel-title">
+                <i class="fas fa-shield-alt"></i>
+                SECURITY SCANNER
+            </div>
+        </div>
+        <div class="control-panel">
+            <button class="control-btn" onclick="runSecurityScan()">
+                <i class="fas fa-virus-slash"></i> RUN FULL SCAN
+            </button>
+            <button class="control-btn danger" onclick="scanRootkit()">
+                <i class="fas fa-bug"></i> ROOTKIT SCAN
+            </button>
+        </div>
+        <div class="security-results" id="securityResults">
+            <!-- Security scan results appear here -->
+        </div>
+    </div>
+
+    <!-- Device Details Modal -->
+    <div class="device-modal" id="deviceModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">DEVICE INTELLIGENCE REPORT</div>
+                <button class="modal-close" onclick="closeModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="device-info-grid" id="modalDeviceInfo">
+                    <!-- Device info will be populated here -->
+                </div>
+                <div class="signal-graph">
+                    <canvas class="waveform-canvas" id="modalWaveform"></canvas>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="control-btn" onclick="addToMonitoring()">
+                    <i class="fas fa-eye"></i> ADD TO MONITORING
+                </button>
+                <button class="control-btn danger" onclick="flagModalDevice()">
+                    <i class="fas fa-flag"></i> FLAG AS THREAT
+                </button>
+                <button class="control-btn" onclick="exportDeviceData()">
+                    <i class="fas fa-download"></i> EXPORT DATA
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Monitoring Tab -->
+    <button class="tab-toggle" onclick="toggleMonitoringTab()">MONITORING</button>
+    <div class="monitoring-tab" id="monitoringTab">
+        <div class="monitoring-header">
+            <div class="panel-title">
+                <i class="fas fa-eye"></i>
+                MONITORED DEVICES
+            </div>
+        </div>
+        <div class="monitoring-list" id="monitoringList">
+            <!-- Monitored devices will appear here -->
+        </div>
+    </div>
+            <div class="agency-title">BTHL TACTICAL OPERATIONS</div>
+        </div>
+        <div class="status-indicators">
+            <div class="indicator active">
+                <i class="fas fa-circle"></i>
+                <span>System Online</span>
+            </div>
+            <div class="indicator" id="scanStatus">
+                <i class="fas fa-radar"></i>
+                <span>Scanner Idle</span>
+            </div>
+            <div class="indicator">
+                <i class="fas fa-shield-alt"></i>
+                <span>Security: MAX</span>
+            </div>
+            <div class="indicator">
+                <i class="fas fa-user"></i>
+                <span>Operator: ALPHA-7</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Dashboard Grid -->
+    <div class="dashboard-grid">
+        <!-- Radar Scanner Panel -->
+        <div class="radar-panel">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <i class="fas fa-radar"></i>
+                    BLUETOOTH TACTICAL SCANNER
+                </div>
+                <div class="distance-indicator">
+                    Range: <span class="distance-value">100m</span>
+                </div>
+            </div>
+            <div class="radar-container">
+                <svg class="radar-svg" viewBox="0 0 400 400">
+                    <!-- Radar Grid -->
+                    <defs>
+                        <radialGradient id="radarGradient">
+                            <stop offset="0%" style="stop-color:#00ff00;stop-opacity:0.3" />
+                            <stop offset="100%" style="stop-color:#00ff00;stop-opacity:0" />
+                        </radialGradient>
+                        <filter id="glow">
+                            <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                            <feMerge>
+                                <feMergeNode in="coloredBlur"/>
+                                <feMergeNode in="SourceGraphic"/>
+                            </feMerge>
+                        </filter>
+                    </defs>
+                    
+                    <!-- Background circles -->
+                    <circle cx="200" cy="200" r="180" fill="none" stroke="#0099cc" stroke-width="0.5" opacity="0.3"/>
+                    <circle cx="200" cy="200" r="135" fill="none" stroke="#0099cc" stroke-width="0.5" opacity="0.3"/>
+                    <circle cx="200" cy="200" r="90" fill="none" stroke="#0099cc" stroke-width="0.5" opacity="0.3"/>
+                    <circle cx="200" cy="200" r="45" fill="none" stroke="#0099cc" stroke-width="0.5" opacity="0.3"/>
+                    
+                    <!-- Cross lines -->
+                    <line x1="200" y1="20" x2="200" y2="380" stroke="#0099cc" stroke-width="0.5" opacity="0.3"/>
+                    <line x1="20" y1="200" x2="380" y2="200" stroke="#0099cc" stroke-width="0.5" opacity="0.3"/>
+                    
+                    <!-- Sweep line -->
+                    <line id="sweepLine" x1="200" y1="200" x2="200" y2="20" stroke="#00ff00" stroke-width="2" opacity="0.8" filter="url(#glow)">
+                        <animateTransform
+                            attributeName="transform"
+                            attributeType="XML"
+                            type="rotate"
+                            from="0 200 200"
+                            to="360 200 200"
+                            dur="3s"
+                            repeatCount="indefinite"/>
+                    </line>
+                    
+                    <!-- Sweep fade effect -->
+                    <path d="M 200,200 L 200,20 A 180,180 0 0,1 320,80 z" fill="url(#radarGradient)" opacity="0.5">
+                        <animateTransform
+                            attributeName="transform"
+                            attributeType="XML"
+                            type="rotate"
+                            from="0 200 200"
+                            to="360 200 200"
+                            dur="3s"
+                            repeatCount="indefinite"/>
+                    </path>
+                    
+                    <!-- Device blips will be added here dynamically -->
+                    <g id="deviceBlips"></g>
+                    
+                    <!-- Center point -->
+                    <circle cx="200" cy="200" r="3" fill="#00ff00" filter="url(#glow)"/>
+                </svg>
+            </div>
+            <div class="control-panel">
+                <button class="control-btn" id="scanBtn">
+                    <i class="fas fa-satellite-dish"></i> START SCAN
+                </button>
+                <button class="control-btn danger" id="flagBtn">
+                    <i class="fas fa-flag"></i> FLAG DEVICE
+                </button>
+                <button class="control-btn" id="exportBtn">
+                    <i class="fas fa-download"></i> EXPORT DATA
+                </button>
+            </div>
+        </div>
+
+        <!-- Device List Panel -->
+        <div class="device-panel">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <i class="fas fa-network-wired"></i>
+                    DETECTED ENTITIES
+                </div>
+                <div class="distance-indicator">
+                    <span id="deviceCount">0</span> Devices
+                </div>
+            </div>
+            <div class="device-list" id="deviceList">
+                <!-- Devices will be added dynamically -->
+            </div>
+        </div>
+
+        <!-- Analysis Panel -->
+        <div class="analysis-panel">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <i class="fas fa-chart-line"></i>
+                    THREAT ANALYSIS
+                </div>
+            </div>
+            
+            <div class="threat-matrix">
+                <div class="threat-level" id="threatLevel">
+                    <span>THREAT LEVEL</span>
+                    <span style="color: var(--success-green); font-weight: bold;">LOW</span>
+                </div>
+                <div class="threat-meter">
+                    <div class="threat-fill" id="threatFill"></div>
+                </div>
+            </div>
+
+            <div class="panel-header">
+                <div class="panel-title">
+                    <i class="fas fa-wave-square"></i>
+                    SIGNAL ANALYSIS
+                </div>
+            </div>
+            
+            <div class="signal-graph">
+                <canvas class="waveform-canvas" id="waveform"></canvas>
+            </div>
+
+            <div class="panel-header">
+                <div class="panel-title">
+                    <i class="fas fa-fingerprint"></i>
+                    DEVICE PROFILE
+                </div>
+            </div>
+            
+            <div style="padding: 15px;" id="deviceProfile">
+                <div style="color: var(--tactical-blue); font-size: 11px; text-align: center;">
+                    SELECT A DEVICE FOR ANALYSIS
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /*
+         * File: dashboard.js
+         * Author: David St John
+         * Date: 2025-08-10
+         * Purpose: Handle Bluetooth scanning and visualization for BTHL
+         * We will integrate this with new Bluetooth library and Electron IPC
+         */
+
+        // Simulated device data for demonstration
+        let devices = [];
+        let scanning = false;
+        let selectedDevice = null;
+        let monitoredDevices = new Set();
+        let currentGPSLocation = null;
+        
+        // Initialize GPS tracking
+        async function initGPS() {
+            try {
+                currentGPSLocation = await window.bthlAPI.gps.getCurrentLocation();
+                await window.bthlAPI.gps.enableTracking();
+                console.log('GPS initialized:', currentGPSLocation);
+            } catch (error) {
+                console.error('GPS init failed:', error);
+            }
+        }
+        
+        // Security scan functions
+        async function runSecurityScan() {
+            const results = document.getElementById('securityResults');
+            results.innerHTML = '<div style="color: var(--electric-blue);">Running full security scan...</div>';
+            
+            try {
+                const scan = await window.bthlAPI.security.runFullScan();
+                displaySecurityResults(scan);
+            } catch (error) {
+                results.innerHTML = `<div style="color: var(--warning-red);">Scan failed: ${error.message}</div>`;
+            }
+        }
+        
+        async function scanRootkit() {
+            const results = document.getElementById('securityResults');
+            results.innerHTML = '<div style="color: var(--electric-blue);">Scanning for rootkits...</div>';
+            
+            try {
+                const rootkit = await window.bthlAPI.security.scanRootkit();
+                const integrity = await window.bthlAPI.security.checkIntegrity();
+                
+                results.innerHTML = `
+                    <div class="security-item ${rootkit.status !== 'ok' ? 'threat' : ''}">
+                        <div style="color: var(--electric-blue); margin-bottom: 10px;">ROOTKIT SCAN</div>
+                        <div>Status: ${rootkit.status === 'ok' ? 'CLEAR' : 'THREAT DETECTED'}</div>
+                        <div style="font-size: 10px; margin-top: 5px;">${rootkit.output || 'No threats found'}</div>
+                    </div>
+                    <div class="security-item ${integrity.changed?.length > 0 ? 'threat' : ''}">
+                        <div style="color: var(--electric-blue); margin-bottom: 10px;">FILE INTEGRITY</div>
+                        <div>Changed files: ${integrity.changed?.length || 0}</div>
+                        ${integrity.changed?.length > 0 ? `<div style="font-size: 10px;">${integrity.changed.join(', ')}</div>` : ''}
+                    </div>
+                `;
+            } catch (error) {
+                results.innerHTML = `<div style="color: var(--warning-red);">Scan failed: ${error.message}</div>`;
+            }
+        }
+        
+        function displaySecurityResults(scan) {
+            const results = document.getElementById('securityResults');
+            results.innerHTML = `
+                <div class="security-item">
+                    <div style="color: var(--electric-blue);">SCAN TIMESTAMP</div>
+                    <div style="font-size: 11px;">${new Date(scan.timestamp).toLocaleString()}</div>
+                </div>
+                <div class="security-item ${scan.rootkit?.status !== 'ok' ? 'threat' : ''}">
+                    <div style="color: var(--electric-blue);">ROOTKIT STATUS</div>
+                    <div>${scan.rootkit?.status || 'Unknown'}</div>
+                </div>
+                <div class="security-item ${scan.integrity?.changed?.length > 0 ? 'threat' : ''}">
+                    <div style="color: var(--electric-blue);">FILE INTEGRITY</div>
+                    <div>Modified: ${scan.integrity?.changed?.length || 0} files</div>
+                </div>
+                <div class="security-item ${scan.processes?.status === 'THREAT' ? 'threat' : ''}">
+                    <div style="color: var(--electric-blue);">PROCESS SCAN</div>
+                    <div>${scan.processes?.status || 'CLEAR'}</div>
+                </div>
+                <div class="security-item ${scan.network?.status === 'THREAT' ? 'threat' : ''}">
+                    <div style="color: var(--electric-blue);">NETWORK SCAN</div>
+                    <div>${scan.network?.status || 'CLEAR'}</div>
+                </div>
+            `;
+        }
+        
+        function toggleSecurityTab() {
+            document.getElementById('securityTab').classList.toggle('active');
+        }
+        
+        // Show device modal with GPS and full details
+        async function showDeviceModal(device) {
+            selectedDevice = device;
+            const modal = document.getElementById('deviceModal');
+            const infoGrid = document.getElementById('modalDeviceInfo');
+            
+            // Calculate GPS location from signal
+            let gpsCoords = { lat: 'N/A', lng: 'N/A' };
+            try {
+                const gps = await window.bthlAPI.gps.calculateGPSFromSignal(device);
+                gpsCoords = gps;
+            } catch (error) {
+                console.error('GPS calculation failed:', error);
+            }
+            
+            // Calculate threat assessment
+            const threatLevel = calculateDeviceThreat(device);
+            const threatColor = threatLevel === 'HIGH' ? 'var(--warning-red)' : 
+                               threatLevel === 'MEDIUM' ? 'var(--alert-orange)' : 'var(--success-green)';
+            
+            // Distance calculations
+            const dist = calculateDistance(device.rssi);
+            
+            // Triangulated position
+            const position = device.rssiHistory?.length >= 3 ? 
+                           triangulatePosition(device.rssiHistory.slice(-3)) : 
+                           { x: '0', y: dist.meters };
+            
+            // Populate with live data attributes for updating
+            infoGrid.innerHTML = `
+                <div class="info-block">
+                    <div class="info-label">Hardware Address</div>
+                    <div class="info-value">${device.address}</div>
+                </div>
+                <div class="info-block">
+                    <div class="info-label">Device Name</div>
+                    <div class="info-value">${device.name || 'Unknown'}</div>
+                </div>
+                <div class="info-block">
+                    <div class="info-label">Signal Strength</div>
+                    <div class="info-value" data-signal="true">${device.rssi} dBm</div>
+                </div>
+                <div class="info-block">
+                    <div class="info-label">Distance (Metric)</div>
+                    <div class="info-value" data-distance-metric="true">${dist.meters}m</div>
+                </div>
+                <div class="info-block">
+                    <div class="info-label">Distance (Imperial)</div>
+                    <div class="info-value" data-distance-imperial="true">${dist.feet}ft / ${dist.yards}yd</div>
+                </div>
+                <div class="info-block">
+                    <div class="info-label">GPS Coordinates</div>
+                    <div class="info-value" data-gps="true" style="font-size: 10px;">
+                        ${gpsCoords.lat}, ${gpsCoords.lng}
+                    </div>
+                </div>
+                <div class="info-block">
+                    <div class="info-label">Triangulated Position</div>
+                    <div class="info-value" data-location="true">X: ${position.x}m, Y: ${position.y}m</div>
+                </div>
+                <div class="info-block">
+                    <div class="info-label">Signal Variance</div>
+                    <div class="info-value">${device.rssiVariance || 0} dBm</div>
+                </div>
+                <div class="info-block">
+                    <div class="info-label">Device Type</div>
+                    <div class="info-value"><i class="fas ${getDeviceIcon(device.type)}"></i> ${device.type || 'Unknown'}</div>
+                </div>
+                <div class="info-block">
+                    <div class="info-label">Bluetooth Version</div>
+                    <div class="info-value">${device.connectable ? 'Classic (2.x/3.x)' : 'Low Energy (4.x/5.x)'}</div>
+                </div>
+                <div class="info-block">
+                    <div class="info-label">Auth Type</div>
+                    <div class="info-value">${device.connectable ? 'PIN/Passkey' : 'Just Works'}</div>
+                </div>
+                <div class="info-block">
+                    <div class="info-label">Operating System</div>
+                    <div class="info-value" style="font-size: 10px;">
+                        ${window.bthlAPI.system.type} ${window.bthlAPI.system.arch}
+                    </div>
+                </div>
+                <div class="info-block">
+                    <div class="info-label">Services</div>
+                    <div class="info-value" style="font-size: 10px;">${device.services?.join(', ') || 'None advertised'}</div>
+                </div>
+                <div class="info-block">
+                    <div class="info-label">Threat Assessment</div>
+                    <div class="info-value" style="color: ${threatColor}; font-weight: bold;">
+                        <i class="fas fa-shield-alt"></i> ${threatLevel}
+                    </div>
+                </div>
+            `;
+            
+            modal.classList.add('active');
+            selectDevice(device);
+        }
+        
+        // Update modal with live data including GPS
+        async function updateModalData(device) {
+            const signalEl = document.querySelector('.info-value[data-signal]');
+            const distMetricEl = document.querySelector('.info-value[data-distance-metric]');
+            const distImperialEl = document.querySelector('.info-value[data-distance-imperial]');
+            const locationEl = document.querySelector('.info-value[data-location]');
+            const gpsEl = document.querySelector('.info-value[data-gps]');
+            
+            const dist = calculateDistance(device.rssi);
+            
+            if (signalEl) signalEl.textContent = `${device.rssi} dBm`;
+            if (distMetricEl) distMetricEl.textContent = `${dist.meters}m`;
+            if (distImperialEl) distImperialEl.textContent = `${dist.feet}ft / ${dist.yards}yd`;
+            
+            // Update GPS
+            try {
+                const gps = await window.bthlAPI.gps.calculateGPSFromSignal(device);
+                if (gpsEl) gpsEl.textContent = `${gps.lat}, ${gps.lng}`;
+            } catch (error) {
+                console.error('GPS update failed:', error);
+            }
+            
+            // Triangulate position if we have enough data
+            if (device.rssiHistory && device.rssiHistory.length >= 3) {
+                const position = triangulatePosition(device.rssiHistory.slice(-3));
+                if (locationEl) locationEl.textContent = `X: ${position.x}m, Y: ${position.y}m`;
+            }
+        }
+        
+        // Initialize on load
+        initGPS();
+        loadStatistics();
+        
+        // Show device modal with live polling
+        function showDeviceModal(device) {
+            selectedDevice = device;
+            const modal = document.getElementById('deviceModal');
+            const infoGrid = document.getElementById('modalDeviceInfo');
+            
+            // Calculate threat assessment
+            const threatLevel = calculateDeviceThreat(device);
+            const threatColor = threatLevel === 'HIGH' ? 'var(--warning-red)' : 
+                               threatLevel === 'MEDIUM' ? 'var(--alert-orange)' : 'var(--success-green)';
+            
+            // Triangulated position
+            const position = device.rssiHistory?.length >= 3 ? 
+                           triangulatePosition(device.rssiHistory.slice(-3)) : 
+                           { x: '0', y: calculateDistance(device.rssi) };
+            
+            // Populate with live data attributes for updating
+            infoGrid.innerHTML = `
+                <div class="info-block">
+                    <div class="info-label">Hardware Address</div>
+                    <div class="info-value">${device.address}</div>
+                </div>
+                <div class="info-block">
+                    <div class="info-label">Device Name</div>
+                    <div class="info-value">${device.name || 'Unknown'}</div>
+                </div>
+                <div class="info-block">
+                    <div class="info-label">Signal Strength</div>
+                    <div class="info-value" data-signal="true">${device.rssi} dBm</div>
+                </div>
+                <div class="info-block">
+                    <div class="info-label">Distance</div>
+                    <div class="info-value" data-distance="true">${calculateDistance(device.rssi)} meters</div>
+                </div>
+                <div class="info-block">
+                    <div class="info-label">Triangulated Position</div>
+                    <div class="info-value" data-location="true">X: ${position.x}m, Y: ${position.y}m</div>
+                </div>
+                <div class="info-block">
+                    <div class="info-label">Signal Variance</div>
+                    <div class="info-value">${device.rssiVariance || 0} dBm</div>
+                </div>
+                <div class="info-block">
+                    <div class="info-label">Device Type</div>
+                    <div class="info-value"><i class="fas ${getDeviceIcon(device.type)}"></i> ${device.type || 'Unknown'}</div>
+                </div>
+                <div class="info-block">
+                    <div class="info-label">Bluetooth Version</div>
+                    <div class="info-value">${device.connectable ? 'Classic (2.x/3.x)' : 'Low Energy (4.x/5.x)'}</div>
+                </div>
+                <div class="info-block">
+                    <div class="info-label">Auth Type</div>
+                    <div class="info-value">${device.connectable ? 'PIN/Passkey' : 'Just Works'}</div>
+                </div>
+                <div class="info-block">
+                    <div class="info-label">Pairable</div>
+                    <div class="info-value">${device.connectable ? 'Yes' : 'Limited'}</div>
+                </div>
+                <div class="info-block">
+                    <div class="info-label">Services</div>
+                    <div class="info-value" style="font-size: 10px;">${device.services?.join(', ') || 'None advertised'}</div>
+                </div>
+                <div class="info-block">
+                    <div class="info-label">Threat Assessment</div>
+                    <div class="info-value" style="color: ${threatColor}; font-weight: bold;">
+                        <i class="fas fa-shield-alt"></i> ${threatLevel}
+                    </div>
+                </div>
+            `;
+            
+            modal.classList.add('active');
+            selectDevice(device);
+        }
+        
+        function closeModal() {
+            document.getElementById('deviceModal').classList.remove('active');
+        }
+        
+        function addToMonitoring() {
+            if (selectedDevice) {
+                monitoredDevices.add(selectedDevice.address);
+                updateMonitoringList();
+                closeModal();
+            }
+        }
+        
+        function flagModalDevice() {
+            if (selectedDevice) {
+                document.getElementById('flagBtn').click();
+                closeModal();
+            }
+        }
+        
+        function exportDeviceData() {
+            if (selectedDevice) {
+                const data = JSON.stringify(selectedDevice, null, 2);
+                console.log('Device data:', data);
+                // Could integrate with file save here
+            }
+        }
+        
+        function toggleMonitoringTab() {
+            document.getElementById('monitoringTab').classList.toggle('active');
+        }
+        
+        function updateMonitoringList() {
+            const list = document.getElementById('monitoringList');
+            list.innerHTML = '';
+            
+            devices.filter(d => monitoredDevices.has(d.address)).forEach(device => {
+                const el = document.createElement('div');
+                el.className = 'monitored-device';
+                el.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span style="color: var(--electric-blue)">${device.name || 'Unknown'}</span>
+                        <button onclick="removeFromMonitoring('${device.address}')" style="background: transparent; border: none; color: var(--warning-red); cursor: pointer;">×</button>
+                    </div>
+                    <div style="font-size: 10px;">
+                        <div>MAC: ${device.address}</div>
+                        <div>RSSI: ${device.rssi} dBm</div>
+                        <div>Distance: ${calculateDistance(device.rssi)}m</div>
+                        <div>Last Seen: ${new Date(device.lastSeen).toLocaleTimeString()}</div>
+                    </div>
+                `;
+                list.appendChild(el);
+            });
+        }
+        
+        function removeFromMonitoring(address) {
+            monitoredDevices.delete(address);
+            updateMonitoringList();
+        }
+
+        // Initialize waveform canvas
+        const canvas = document.getElementById('waveform');
+        const ctx = canvas.getContext('2d');
+        canvas.width = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
+
+        // Draw waveform
+        function drawWaveform(strength = 0) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.strokeStyle = '#00d4ff';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            
+            for (let x = 0; x < canvas.width; x++) {
+                const y = canvas.height / 2 + Math.sin(x * 0.05 + Date.now() * 0.001) * (strength / 2);
+                if (x === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            
+            ctx.stroke();
+        }
+
+        // Animate waveform
+        function animateWaveform() {
+            drawWaveform(selectedDevice ? Math.abs(selectedDevice.rssi) : 20);
+            requestAnimationFrame(animateWaveform);
+        }
+        animateWaveform();
+
+        // Calculate distance with both metric and imperial
+        function calculateDistance(rssi) {
+            const txPower = -59;
+            const n = 2;
+            const meters = Math.pow(10, (txPower - rssi) / (10 * n));
+            const feet = meters * 3.28084;
+            const yards = meters * 1.09361;
+            
+            return {
+                meters: meters.toFixed(1),
+                feet: feet.toFixed(1),
+                yards: yards.toFixed(1),
+                display: `${meters.toFixed(1)}m / ${feet.toFixed(0)}ft`
+            };
+        }
+        
+        // Get display distance string
+        function getDistanceDisplay(rssi) {
+            const dist = calculateDistance(rssi);
+            return dist.display;
+        }
+
+        // Add device to radar
+        function addDeviceToRadar(device, index) {
+            const blips = document.getElementById('deviceBlips');
+            
+            // Calculate position based on RSSI (stronger signal = closer to center)
+            const distance = Math.min(180, Math.abs(device.rssi) * 2);
+            const angle = (index * 60) % 360;
+            const x = 200 + distance * Math.cos(angle * Math.PI / 180);
+            const y = 200 + distance * Math.sin(angle * Math.PI / 180);
+            
+            const blip = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            blip.setAttribute('cx', x);
+            blip.setAttribute('cy', y);
+            blip.setAttribute('r', '5');
+            blip.setAttribute('fill', device.flagged ? '#ff3333' : '#00ff00');
+            blip.setAttribute('filter', 'url(#glow)');
+            blip.setAttribute('data-device-id', device.address);
+            
+            // Add pulsing animation
+            const animate = document.createElementNS('http://www.w3.org/2000/svg', 'animate');
+            animate.setAttribute('attributeName', 'r');
+            animate.setAttribute('values', '5;8;5');
+            animate.setAttribute('dur', '2s');
+            animate.setAttribute('repeatCount', 'indefinite');
+            blip.appendChild(animate);
+            
+            blips.appendChild(blip);
+        }
+
+        // Device type icons
+        function getDeviceIcon(type) {
+            const icons = {
+                'Phone': 'fa-mobile-alt',
+                'Audio': 'fa-headphones',
+                'Wearable': 'fa-watch',
+                'Media': 'fa-tv',
+                'Computer': 'fa-laptop',
+                'Vehicle': 'fa-car',
+                'Suspicious': 'fa-exclamation-triangle',
+                'Camera': 'fa-camera',
+                'HID': 'fa-keyboard',
+                'Unknown': 'fa-question-circle'
+            };
+            return icons[type] || 'fa-bluetooth';
+        }
+        
+        // Add device to list with icon
+        function addDeviceToList(device) {
+            // Don't add duplicates
+            const existingDevice = document.querySelector(`[data-device-address="${device.address}"]`);
+            if (existingDevice) {
+                updateDeviceElement(existingDevice, device);
+                return;
+            }
+            
+            const deviceEl = document.createElement('div');
+            deviceEl.className = `device-item ${device.flagged ? 'flagged' : ''}`;
+            deviceEl.setAttribute('data-device-address', device.address);
+            
+            // Calculate threat level
+            const threatLevel = calculateDeviceThreat(device);
+            const threatColor = threatLevel === 'HIGH' ? 'var(--warning-red)' : 
+                               threatLevel === 'MEDIUM' ? 'var(--alert-orange)' : 'var(--success-green)';
+            
+            deviceEl.innerHTML = `
+                <div class="device-header">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <i class="fas ${getDeviceIcon(device.type)}" style="color: ${threatColor}"></i>
+                        <div class="device-name">${device.name || 'Unknown Device'}</div>
+                    </div>
+                    <div class="device-status">
+                        <div class="status-dot" style="background: ${threatColor}; animation: ${threatLevel === 'HIGH' ? 'pulse 1s infinite' : 'none'}"></div>
+                    </div>
+                </div>
+                <div class="device-details">
+                    <div class="detail-item">
+                        <span class="detail-label">MAC:</span>
+                        <span class="detail-value">${device.address}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">RSSI:</span>
+                        <span class="detail-value">${device.rssi} dBm</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Distance:</span>
+                        <span class="detail-value">${getDistanceDisplay(device.rssi)}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Threat:</span>
+                        <span class="detail-value" style="color: ${threatColor}">${threatLevel}</span>
+                    </div>
+                </div>
+            `;
+            
+            deviceEl.onclick = () => showDeviceModal(device);
+            document.getElementById('deviceList').appendChild(deviceEl);
+        }
+        
+        // Calculate device threat level
+        function calculateDeviceThreat(device) {
+            let score = 0;
+            
+            // Check suspicious patterns
+            const name = (device.name || '').toLowerCase();
+            const suspicious = ['spy', 'cam', 'hidden', 'hc-', 'esp', 'mini'];
+            if (suspicious.some(p => name.includes(p))) score += 40;
+            
+            // Unknown device with strong signal
+            if (!device.name && device.rssi > -50) score += 30;
+            
+            // Device type suspicious
+            if (device.type === 'Suspicious') score += 50;
+            
+            // No services advertised
+            if (!device.services || device.services.length === 0) score += 20;
+            
+            return score >= 60 ? 'HIGH' : score >= 30 ? 'MEDIUM' : 'LOW';
+        }
+        
+        function updateDeviceElement(element, device) {
+            element.querySelector('.device-name').textContent = device.name || 'Unknown Device';
+            element.querySelector('.detail-value:nth-of-type(2)').textContent = `${device.rssi} dBm`;
+            element.querySelector('.detail-value:nth-of-type(3)').textContent = `${calculateDistance(device.rssi)}m`;
+        }
+
+        // Select device for analysis
+        function selectDevice(device) {
+            selectedDevice = device;
+            
+            // Update device profile
+            const profile = document.getElementById('deviceProfile');
+            profile.innerHTML = `
+                <div style="background: var(--panel-dark); padding: 15px; border: 1px solid var(--tactical-blue);">
+                    <div style="color: var(--electric-blue); font-size: 14px; margin-bottom: 10px;">${device.name || 'Unknown'}</div>
+                    <div style="display: grid; gap: 8px; font-size: 11px;">
+                        <div><span style="color: var(--tactical-blue);">Hardware Address:</span> <span style="color: var(--metal-silver);">${device.address}</span></div>
+                        <div><span style="color: var(--tactical-blue);">Signal Strength:</span> <span style="color: var(--metal-silver);">${device.rssi} dBm</span></div>
+                        <div><span style="color: var(--tactical-blue);">Estimated Range:</span> <span style="color: var(--metal-silver);">${calculateDistance(device.rssi)} meters</span></div>
+                        <div><span style="color: var(--tactical-blue);">Device Class:</span> <span style="color: var(--metal-silver);">${device.type || 'Unknown'}</span></div>
+                        <div><span style="color: var(--tactical-blue);">Threat Level:</span> <span style="color: ${device.flagged ? 'var(--warning-red)' : 'var(--success-green)'};">${device.flagged ? 'HIGH' : 'LOW'}</span></div>
+                        <div><span style="color: var(--tactical-blue);">First Seen:</span> <span style="color: var(--metal-silver);">${new Date().toLocaleTimeString()}</span></div>
+                    </div>
+                </div>
+            `;
+            
+            // Update threat level
+            updateThreatLevel();
+        }
+
+        // Update threat level based on flagged devices
+        function updateThreatLevel() {
+            const flaggedCount = devices.filter(d => d.flagged).length;
+            const threatLevel = document.getElementById('threatLevel');
+            const threatFill = document.getElementById('threatFill');
+            
+            if (flaggedCount === 0) {
+                threatLevel.className = 'threat-level';
+                threatLevel.innerHTML = '<span>THREAT LEVEL</span><span style="color: var(--success-green); font-weight: bold;">LOW</span>';
+                threatFill.style.width = '30%';
+            } else if (flaggedCount < 3) {
+                threatLevel.className = 'threat-level medium';
+                threatLevel.innerHTML = '<span>THREAT LEVEL</span><span style="color: var(--alert-orange); font-weight: bold;">MEDIUM</span>';
+                threatFill.style.width = '60%';
+            } else {
+                threatLevel.className = 'threat-level high';
+                threatLevel.innerHTML = '<span>THREAT LEVEL</span><span style="color: var(--warning-red); font-weight: bold;">HIGH</span>';
+                threatFill.style.width = '90%';
+            }
+        }
+
+        // Real device polling with proper accumulation
+        async function pollDevices() {
+            if (!scanning) return;
+            
+            try {
+                const scannedDevices = await window.bthlAPI.bluetooth.getDevices();
+                
+                // Process each device without clearing
+                scannedDevices.forEach((device) => {
+                    // Find or add device
+                    let existingDevice = devices.find(d => d.address === device.address);
+                    
+                    if (existingDevice) {
+                        // Update RSSI history for triangulation
+                        if (!existingDevice.rssiHistory) existingDevice.rssiHistory = [];
+                        existingDevice.rssiHistory.push(device.rssi);
+                        if (existingDevice.rssiHistory.length > 10) existingDevice.rssiHistory.shift();
+                        
+                        // Calculate RSSI variance for movement detection
+                        const variance = Math.max(...existingDevice.rssiHistory) - Math.min(...existingDevice.rssiHistory);
+                        device.rssiVariance = variance;
+                        
+                        // Update device data
+                        Object.assign(existingDevice, device);
+                        updateDeviceElement(document.querySelector(`[data-device-address="${device.address}"]`), device);
+                    } else {
+                        // New device
+                        device.rssiHistory = [device.rssi];
+                        device.rssiVariance = 0;
+                        devices.push(device);
+                        addDeviceToList(device);
+                        addDeviceToRadar(device, devices.length - 1);
+                    }
+                });
+                
+                // Update counts and threat analysis
+                document.getElementById('deviceCount').textContent = devices.length;
+                updateThreatLevel();
+                
+                // Update modal if open
+                if (selectedDevice && document.getElementById('deviceModal').classList.contains('active')) {
+                    const updated = devices.find(d => d.address === selectedDevice.address);
+                    if (updated) {
+                        updateModalData(updated);
+                    }
+                }
+                
+                // Update monitoring list
+                updateMonitoringList();
+                
+            } catch (error) {
+                console.error('Polling error:', error);
+            }
+            
+            // Continue polling
+            if (scanning) {
+                setTimeout(pollDevices, 500); // Faster polling for live data
+            }
+        }
+        
+        // Update modal with live data
+        function updateModalData(device) {
+            const signalEl = document.querySelector('.info-value[data-signal]');
+            const distanceEl = document.querySelector('.info-value[data-distance]');
+            const locationEl = document.querySelector('.info-value[data-location]');
+            
+            if (signalEl) signalEl.textContent = `${device.rssi} dBm`;
+            if (distanceEl) distanceEl.textContent = `${calculateDistance(device.rssi)} meters`;
+            
+            // Triangulate position if we have enough data
+            if (device.rssiHistory && device.rssiHistory.length >= 3) {
+                const position = triangulatePosition(device.rssiHistory.slice(-3));
+                if (locationEl) locationEl.textContent = `X: ${position.x}m, Y: ${position.y}m`;
+            }
+        }
+        
+        // Triangulation calculation
+        function triangulatePosition(rssiValues) {
+            // Simple triangulation based on RSSI from multiple readings
+            const distances = rssiValues.map(rssi => parseFloat(calculateDistance(rssi)));
+            
+            // Assuming readings from different angles
+            const x = (distances[0] + distances[1]) / 2 * Math.cos(Math.PI / 4);
+            const y = (distances[1] + distances[2]) / 2 * Math.sin(Math.PI / 4);
+            
+            return { x: x.toFixed(1), y: y.toFixed(1) };
+        }
+
+        // Scan button handler with real Bluetooth - DO NOT CLEAR DEVICES
+        document.getElementById('scanBtn').addEventListener('click', async function() {
+            scanning = !scanning;
+            const scanStatus = document.getElementById('scanStatus');
+            
+            if (scanning) {
+                try {
+                    await window.bthlAPI.bluetooth.startScan();
+                    
+                    this.innerHTML = '<i class="fas fa-stop"></i> STOP SCAN';
+                    this.classList.add('scanning');
+                    scanStatus.classList.add('active');
+                    scanStatus.innerHTML = '<i class="fas fa-radar"></i><span>Scanner Active</span>';
+                    
+                    // DO NOT clear devices - accumulate them
+                    // devices = []; // REMOVED THIS LINE
+                    // document.getElementById('deviceList').innerHTML = ''; // REMOVED THIS LINE
+                    // document.getElementById('deviceBlips').innerHTML = ''; // REMOVED THIS LINE
+                    
+                    // Start polling for devices
+                    pollDevices();
+                } catch (error) {
+                    console.error('Failed to start scan:', error);
+                    scanning = false;
+                }
+            } else {
+                try {
+                    await window.bthlAPI.bluetooth.stopScan();
+                    
+                    this.innerHTML = '<i class="fas fa-satellite-dish"></i> START SCAN';
+                    this.classList.remove('scanning');
+                    scanStatus.classList.remove('active');
+                    scanStatus.innerHTML = '<i class="fas fa-radar"></i><span>Scanner Idle</span>';
+                } catch (error) {
+                    console.error('Failed to stop scan:', error);
+                }
+            }
+        });
+
+        // Flag button handler with database integration
+        document.getElementById('flagBtn').addEventListener('click', async function() {
+            if (selectedDevice) {
+                try {
+                    const newFlagState = !selectedDevice.flagged;
+                    const reason = newFlagState ? prompt('Reason for flagging:', 'Suspicious activity') : null;
+                    
+                    // Update in backend
+                    await window.bthlAPI.bluetooth.flagDevice(selectedDevice.address, newFlagState, reason);
+                    
+                    selectedDevice.flagged = newFlagState;
+                    
+                    // Update UI
+                    document.querySelectorAll('.device-item').forEach(el => {
+                        const macText = el.querySelector('.detail-value').textContent;
+                        if (macText === selectedDevice.address) {
+                            el.classList.toggle('flagged');
+                        }
+                    });
+                    
+                    // Update radar blip
+                    document.querySelectorAll('#deviceBlips circle').forEach(blip => {
+                        if (blip.getAttribute('data-device-id') === selectedDevice.address) {
+                            blip.setAttribute('fill', selectedDevice.flagged ? '#ff3333' : '#00ff00');
+                        }
+                    });
+                    
+                    selectDevice(selectedDevice); // Refresh profile
+                } catch (error) {
+                    console.error('Failed to flag device:', error);
+                }
+            }
+        });
+
+        // Export button handler with real export
+        document.getElementById('exportBtn').addEventListener('click', async function() {
+            try {
+                const result = await window.bthlAPI.bluetooth.exportData();
+                if (result.success) {
+                    alert(`Data exported to: ${result.path}`);
+                }
+            } catch (error) {
+                console.error('Export failed:', error);
+                alert('Failed to export data');
+            }
+        });
+        
+        // Load initial statistics
+        async function loadStatistics() {
+            try {
+                const stats = await window.bthlAPI.bluetooth.getStatistics();
+                console.log('System statistics:', stats);
+            } catch (error) {
+                console.error('Failed to load statistics:', error);
+            }
+        }
+        
+        loadStatistics();
+    </script>
+</body>
+</html>
